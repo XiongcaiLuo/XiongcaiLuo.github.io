@@ -65,55 +65,6 @@
       <div class="outer">
         <section id="main">
   
-    <article id="post-ml-ch2-cmu" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2017/04/04/ml-ch2-cmu/" class="article-date">
-  <time datetime="2017-04-04T15:46:15.000Z" itemprop="datePublished">2017-04-04</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/04/04/ml-ch2-cmu/">第2章 概念学习</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <hr>
-<h3 id="概念学习"><a href="#概念学习" class="headerlink" title="概念学习"></a>概念学习</h3><p><strong>定义：</strong>从有关某个布尔函数的训练样例中推断出该布尔函数；从集合的角度来看，它是实例空间X的一个子集。<br><strong>归纳学习的基本假设：</strong>对未见实例最好的假设就是与训练数据最佳拟合的假设</p>
-<h4 id="假设空间的偏序"><a href="#假设空间的偏序" class="headerlink" title="假设空间的偏序"></a>假设空间的偏序</h4><p><strong>定义：</strong> $h_j, h_k$为在X上定义的布尔函数， 称 $h_j$ <strong>more_general_than_or_equal_to</strong> $h_k$(记作$h_j \ge_g h_k$), 当且仅当：<br>$$(\forall x \in X) [(h_k(x) = 1) \rightarrow (h_j(x) = 1)]$$</p>
-<p><strong>定义：</strong>一个假设$h$与训练集合$D$<strong>一致</strong>，当且仅当$D$中的每一个样例$(x, c(x))$,都有$h(x) = c(x)$<br>$$Consistent(h, D) \equiv (\forall <x, c(x)=""> \in D) [h(x) = c(x)]$$</x,></p>
-<p><strong>定义：变型空间，$VS_{H,D}$</strong><br>$$ VS_{H,D} = { h \in H | Consistent(h, D)}  $$</p>
-<p>变型空间，可使用<strong>一般边界(general boundary)</strong>和<strong>特殊边界(specific boundary)</strong>进行界定。</p>
-<h4 id="归纳偏置"><a href="#归纳偏置" class="headerlink" title="归纳偏置"></a>归纳偏置</h4><p> <strong>无偏的学习器：</strong> 包含所有可能目标概念的假设空间，它是实例空间$X$的幂集($X$的所有子集的集合)</p>
-<p><strong>无偏学习器的无用性：</strong>对于任意未见的实例，它无法给出明确判断，即<strong>没有泛化能力</strong>。对于任一未见的实例$x$, 它总能刚好被变型空间中的一半假设判定为正例，一半假设判定为负例，无法通过投票决定结果。</p>
-<p><strong>归纳偏置：</strong>学习器如果不对目标概念做预先的假定，它从根本上无法对未见的实例进行分类，这些预先假定的<strong>前提集合</strong>称之为归纳偏置。</p>
-<ul>
-<li><strong>归纳系统添加 归纳偏置之后，等价于某种形式的演绎系统</strong></li>
-<li>不同学习器有不同的归纳偏置，通过比较归纳偏置，来比较不同学习器的泛化策略；<strong>有偏性越强的学习器，归纳能力越强</strong>，可以分类更多的未见实例。（可以分类，但不代表分类正确）</li>
-</ul>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://luoxc.com/2017/04/04/ml-ch2-cmu/" data-id="cj13q4jqo0000ya5d56n1nh8d" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
     <article id="post-assange" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2017/04/04/assange/" class="article-date">
@@ -163,7 +114,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://luoxc.com/2017/04/04/assange/" data-id="cj13q4jr20004ya5dc8oqsiyd" class="article-share-link">Share</a>
+      <a data-url="http://luoxc.com/2017/04/04/assange/" data-id="cj13q6qoh00003m5d38fnrc4v" class="article-share-link">Share</a>
       
       
     </footer>
@@ -245,7 +196,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://luoxc.com/2017/04/04/poor_charlies/" data-id="cj13q4jqx0002ya5dhjg500fr" class="article-share-link">Share</a>
+      <a data-url="http://luoxc.com/2017/04/04/poor_charlies/" data-id="cj13q6qp300033m5d37eff5qq" class="article-share-link">Share</a>
       
       
     </footer>
@@ -346,7 +297,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://luoxc.com/2017/02/19/talking-Ax/" data-id="cj13q4jr40005ya5dv5xznaue" class="article-share-link">Share</a>
+      <a data-url="http://luoxc.com/2017/02/19/talking-Ax/" data-id="cj13q6qp400043m5dee6yz9gy" class="article-share-link">Share</a>
       
       
     </footer>
@@ -423,7 +374,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://luoxc.com/2017/02/18/hexo-博客搭建指南/" data-id="cj13q4jqu0001ya5drrezzn89" class="article-share-link">Share</a>
+      <a data-url="http://luoxc.com/2017/02/18/hexo-博客搭建指南/" data-id="cj13q6qp100023m5d57exfmm0" class="article-share-link">Share</a>
       
       
     </footer>
@@ -460,7 +411,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://luoxc.com/2017/02/18/Hello-Xigua/" data-id="cj13q4jr00003ya5d6pude5ny" class="article-share-link">Share</a>
+      <a data-url="http://luoxc.com/2017/02/18/Hello-Xigua/" data-id="cj13q6qon00013m5d65crky69" class="article-share-link">Share</a>
       
       
     </footer>
@@ -500,10 +451,6 @@
       <ul>
         
           <li>
-            <a href="/2017/04/04/ml-ch2-cmu/">第2章 概念学习</a>
-          </li>
-        
-          <li>
             <a href="/2017/04/04/assange/">阿桑奇自传</a>
           </li>
         
@@ -517,6 +464,10 @@
         
           <li>
             <a href="/2017/02/18/hexo-博客搭建指南/">hexo 博客搭建指南</a>
+          </li>
+        
+          <li>
+            <a href="/2017/02/18/Hello-Xigua/">Hello Xigua</a>
           </li>
         
       </ul>
