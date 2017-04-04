@@ -5,19 +5,19 @@
   
   <title>第2章 概念学习 | Mr Xigua</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="概念学习定义：从有关某个布尔函数的训练样例中推断出该布尔函数；从集合的角度来看，它是实例空间X的一个子集。归纳学习的基本假设：对未见实例最好的假设就是与训练数据最佳拟合的假设
-假设空间的偏序定义： $h_j, h_k$为在X上定义的布尔函数， 称 $h_j$ more_general_than_or_equal_to $h_k$(记作$h_j \ge_g h_k$), 当且仅当：$$(\fora">
+  <meta name="description" content="注：笔记来自于CMU Tom M. Mitchell的《machine learning》概念学习定义：从有关某个布尔函数的训练样例中推断出该布尔函数；从集合的角度来看，它是实例空间X的一个子集。归纳学习的基本假设：对未见实例最好的假设就是与训练数据最佳拟合的假设
+假设空间的偏序定义： $h_j, h_k$为在X上定义的布尔函数， 称 $h_j$ more_general_than_or_equa">
 <meta property="og:type" content="article">
 <meta property="og:title" content="第2章 概念学习">
 <meta property="og:url" content="http://luoxc.com/2017/04/04/ml-ch2-mitchell/index.html">
 <meta property="og:site_name" content="Mr Xigua">
-<meta property="og:description" content="概念学习定义：从有关某个布尔函数的训练样例中推断出该布尔函数；从集合的角度来看，它是实例空间X的一个子集。归纳学习的基本假设：对未见实例最好的假设就是与训练数据最佳拟合的假设
-假设空间的偏序定义： $h_j, h_k$为在X上定义的布尔函数， 称 $h_j$ more_general_than_or_equal_to $h_k$(记作$h_j \ge_g h_k$), 当且仅当：$$(\fora">
-<meta property="og:updated_time" content="2017-04-04T15:56:43.000Z">
+<meta property="og:description" content="注：笔记来自于CMU Tom M. Mitchell的《machine learning》概念学习定义：从有关某个布尔函数的训练样例中推断出该布尔函数；从集合的角度来看，它是实例空间X的一个子集。归纳学习的基本假设：对未见实例最好的假设就是与训练数据最佳拟合的假设
+假设空间的偏序定义： $h_j, h_k$为在X上定义的布尔函数， 称 $h_j$ more_general_than_or_equa">
+<meta property="og:updated_time" content="2017-04-04T15:59:51.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="第2章 概念学习">
-<meta name="twitter:description" content="概念学习定义：从有关某个布尔函数的训练样例中推断出该布尔函数；从集合的角度来看，它是实例空间X的一个子集。归纳学习的基本假设：对未见实例最好的假设就是与训练数据最佳拟合的假设
-假设空间的偏序定义： $h_j, h_k$为在X上定义的布尔函数， 称 $h_j$ more_general_than_or_equal_to $h_k$(记作$h_j \ge_g h_k$), 当且仅当：$$(\fora">
+<meta name="twitter:description" content="注：笔记来自于CMU Tom M. Mitchell的《machine learning》概念学习定义：从有关某个布尔函数的训练样例中推断出该布尔函数；从集合的角度来看，它是实例空间X的一个子集。归纳学习的基本假设：对未见实例最好的假设就是与训练数据最佳拟合的假设
+假设空间的偏序定义： $h_j, h_k$为在X上定义的布尔函数， 称 $h_j$ more_general_than_or_equa">
   
     <link rel="alternate" href="/atom.xml" title="Mr Xigua" type="application/atom+xml">
   
@@ -92,8 +92,7 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <hr>
-<h3 id="概念学习"><a href="#概念学习" class="headerlink" title="概念学习"></a>概念学习</h3><p><strong>定义：</strong>从有关某个布尔函数的训练样例中推断出该布尔函数；从集合的角度来看，它是实例空间X的一个子集。<br><strong>归纳学习的基本假设：</strong>对未见实例最好的假设就是与训练数据最佳拟合的假设</p>
+        <h2 id="注：笔记来自于CMU-Tom-M-Mitchell的《machine-learning》"><a href="#注：笔记来自于CMU-Tom-M-Mitchell的《machine-learning》" class="headerlink" title="注：笔记来自于CMU Tom M. Mitchell的《machine learning》"></a>注：笔记来自于CMU Tom M. Mitchell的《machine learning》</h2><h3 id="概念学习"><a href="#概念学习" class="headerlink" title="概念学习"></a>概念学习</h3><p><strong>定义：</strong>从有关某个布尔函数的训练样例中推断出该布尔函数；从集合的角度来看，它是实例空间X的一个子集。<br><strong>归纳学习的基本假设：</strong>对未见实例最好的假设就是与训练数据最佳拟合的假设</p>
 <h4 id="假设空间的偏序"><a href="#假设空间的偏序" class="headerlink" title="假设空间的偏序"></a>假设空间的偏序</h4><p><strong>定义：</strong> $h_j, h_k$为在X上定义的布尔函数， 称 $h_j$ <strong>more_general_than_or_equal_to</strong> $h_k$(记作$h_j \ge_g h_k$), 当且仅当：<br>$$(\forall x \in X) [(h_k(x) = 1) \rightarrow (h_j(x) = 1)]$$</p>
 <p><strong>定义：</strong>一个假设$h$与训练集合$D$<strong>一致</strong>，当且仅当$D$中的每一个样例$(x, c(x))$,都有$h(x) = c(x)$<br>$$Consistent(h, D) \equiv (\forall <x, c(x)=""> \in D) [h(x) = c(x)]$$</x,></p>
 <p><strong>定义：变型空间，$VS_{H,D}$</strong><br>$$ VS_{H,D} = { h \in H | Consistent(h, D)}  $$</p>
@@ -109,7 +108,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://luoxc.com/2017/04/04/ml-ch2-mitchell/" data-id="cj13q9mi300037t5d0t3irgrw" class="article-share-link">Share</a>
+      <a data-url="http://luoxc.com/2017/04/04/ml-ch2-mitchell/" data-id="cj13qdmnq0004cp5dydh4x2uc" class="article-share-link">Share</a>
       
       
     </footer>
