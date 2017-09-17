@@ -5,16 +5,16 @@
   
   <title>哥德尔不完全性 | Mr Xigua</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="本文内容主要来自于Ernest Nagel和James R. Newman的《哥德尔证明》一书，笔者根据按照书中逻辑，结合最近（也许有遥远过去看过的书）的一系列阅读，简述相关内容。　　在几何学的历史上，有一段传奇公案：欧几里得第五公设（平行公理）的研究。　　“过直线外一点，有且仅有一条直线与已知直线平行” – 欧氏几何　　不同于其它四条公理，平行公理并非那么显然为真。大量数学家涌入该领域，希望">
+  <meta name="description" content="在几何学的历史上，有一段传奇公案：欧几里得第五公设（平行公理）的研究。　　“过直线外一点，有且仅有一条直线与已知直线平行” – 欧氏几何　　不同于其它四条公理，平行公理并非那么显然为真。大量数学家涌入该领域，希望：要么证明平行公理是从其它公理推导出来的定理，要么证明平行公理是不可或缺的。　　可是，这两条途径都失败了。少数天才数学家意识到，平行公理既无法证明是定理，也并非不可或缺。非欧几何就此诞">
 <meta property="og:type" content="article">
 <meta property="og:title" content="哥德尔不完全性">
 <meta property="og:url" content="http://luoxc.com/2017/09/17/godel-proof/index.html">
 <meta property="og:site_name" content="Mr Xigua">
-<meta property="og:description" content="本文内容主要来自于Ernest Nagel和James R. Newman的《哥德尔证明》一书，笔者根据按照书中逻辑，结合最近（也许有遥远过去看过的书）的一系列阅读，简述相关内容。　　在几何学的历史上，有一段传奇公案：欧几里得第五公设（平行公理）的研究。　　“过直线外一点，有且仅有一条直线与已知直线平行” – 欧氏几何　　不同于其它四条公理，平行公理并非那么显然为真。大量数学家涌入该领域，希望">
-<meta property="og:updated_time" content="2017-09-17T05:39:40.000Z">
+<meta property="og:description" content="在几何学的历史上，有一段传奇公案：欧几里得第五公设（平行公理）的研究。　　“过直线外一点，有且仅有一条直线与已知直线平行” – 欧氏几何　　不同于其它四条公理，平行公理并非那么显然为真。大量数学家涌入该领域，希望：要么证明平行公理是从其它公理推导出来的定理，要么证明平行公理是不可或缺的。　　可是，这两条途径都失败了。少数天才数学家意识到，平行公理既无法证明是定理，也并非不可或缺。非欧几何就此诞">
+<meta property="og:updated_time" content="2017-09-17T05:45:50.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="哥德尔不完全性">
-<meta name="twitter:description" content="本文内容主要来自于Ernest Nagel和James R. Newman的《哥德尔证明》一书，笔者根据按照书中逻辑，结合最近（也许有遥远过去看过的书）的一系列阅读，简述相关内容。　　在几何学的历史上，有一段传奇公案：欧几里得第五公设（平行公理）的研究。　　“过直线外一点，有且仅有一条直线与已知直线平行” – 欧氏几何　　不同于其它四条公理，平行公理并非那么显然为真。大量数学家涌入该领域，希望">
+<meta name="twitter:description" content="在几何学的历史上，有一段传奇公案：欧几里得第五公设（平行公理）的研究。　　“过直线外一点，有且仅有一条直线与已知直线平行” – 欧氏几何　　不同于其它四条公理，平行公理并非那么显然为真。大量数学家涌入该领域，希望：要么证明平行公理是从其它公理推导出来的定理，要么证明平行公理是不可或缺的。　　可是，这两条途径都失败了。少数天才数学家意识到，平行公理既无法证明是定理，也并非不可或缺。非欧几何就此诞">
   
     <link rel="alternate" href="/atom.xml" title="Mr Xigua" type="application/atom+xml">
   
@@ -56,9 +56,9 @@
       </nav>
       <nav id="sub-nav">
         
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="Flux RSS"></a>
         
-        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+        <a id="nav-search-btn" class="nav-icon" title="Rechercher"></a>
       </nav>
       <div id="search-form-wrap">
         <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://luoxc.com"></form>
@@ -89,7 +89,7 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>　　本文内容主要来自于Ernest Nagel和James R. Newman的《哥德尔证明》一书，笔者根据按照书中逻辑，结合最近（也许有遥远过去看过的书）的一系列阅读，简述相关内容。<br>　　在几何学的历史上，有一段传奇公案：欧几里得第五公设（平行公理）的研究。<br>　　“过直线外一点，有且仅有一条直线与已知直线平行” – <strong>欧氏几何</strong><br>　　不同于其它四条公理，平行公理并非那么显然为真。大量数学家涌入该领域，希望：要么证明平行公理是从其它公理推导出来的定理，要么证明平行公理是不可或缺的。<br>　　可是，这两条途径都失败了。少数天才数学家意识到，平行公理既无法证明是定理，也并非不可或缺。非欧几何就此诞生。罗巴切夫斯基提出“罗氏几何”，黎曼提出“黎曼几何”（后用于解释广义相对论）。<br>　　“过直线外一点，至少可以做两条直线与已知直线平行” – <strong>罗氏几何</strong><br>　　“过直线外一点，没有直线与已知直线平行” – <strong>黎曼几何</strong><br>　　其时，意识到非欧几何的，还有更早的匈牙利21岁的鲍耶·雅诺什，以及人称数学王子和老狐狸的高斯。高斯可能是最早意识到非欧几何的存在，只是太违反现实直觉，而迟迟没有公布相关研究成果。“点”，“线”，“平面”的定义，已经在我们脑海里根深蒂固。但我们如果抛开成见，在球面上理解“黎曼几何”，将“点”理解为球面上一条直径的两个端点，一切都将是相容的。“点”如何定义无关紧要，重要的是据此而来的推理的相容性。<br>　　对于公理系统来说，公理是否自明为真无关紧要，重要的是推导出来的定理的相容性。对于形式化公理系统来说，有两个核心问题，“一致性”，“完备性”。<br>　　“一致性是指，从公理出发，不会推导出命题P和~P同时为真”<br>　　“完备性是指，该公理系统中真命题，都能够从公理系统推导出”<br>　　形式系统已经将现实意义残忍剥离，而“一致性”和“完备性”就成了数学家最朴素的愿望，尤其是“一致性”。罗素和怀特海则在鸿篇巨著《数学原理》中将数学系统抽象成纯逻辑系统；大卫·希尔伯特提出了“一致性”的绝对证明原则。<br>　　可是，希尔伯特和罗素的愿望，被当时的青年才俊无需担心买房的哥德尔无情击破。1931年，维也纳大学时年25岁的库尔特·哥德尔，发表“论《数学原理》及相关系统的形式不可判定命题”，成为逻辑和数学史上的一座里程碑。哥德尔采用了类似于“说谎者”悖论的论证逻辑。（或者“理发师悖论”。具体什么悖论，结果都会殊途同归，只要这些悖论谈论他们自身。有时间会整理各种有意思的悖论和思想实验）<br>　　“我说的这句话是假的。” 这个命题是不可判定的。<br>　　哥德尔给了数学家、逻辑学家、哲学家几乎是致命的一击，以至于伟大的语言哲学家维特根斯坦终生拒绝相信哥德尔的结论（就是那个博士答辩，让导师罗素、摩尔、魏斯曼不敢开口提问的天才。他的传记参见《维特根斯坦传：天才之为责任》）。<br>　　哥德尔不完备定理的证明核心有两点：</p>
+        <p>　　在几何学的历史上，有一段传奇公案：欧几里得第五公设（平行公理）的研究。<br>　　“过直线外一点，有且仅有一条直线与已知直线平行” – <strong>欧氏几何</strong><br>　　不同于其它四条公理，平行公理并非那么显然为真。大量数学家涌入该领域，希望：要么证明平行公理是从其它公理推导出来的定理，要么证明平行公理是不可或缺的。<br>　　可是，这两条途径都失败了。少数天才数学家意识到，平行公理既无法证明是定理，也并非不可或缺。非欧几何就此诞生。罗巴切夫斯基提出“罗氏几何”，黎曼提出“黎曼几何”（后用于解释广义相对论）。<br>　　“过直线外一点，至少可以做两条直线与已知直线平行” – <strong>罗氏几何</strong><br>　　“过直线外一点，没有直线与已知直线平行” – <strong>黎曼几何</strong><br>　　其时，意识到非欧几何的，还有更早的匈牙利21岁的鲍耶·雅诺什，以及人称数学王子和老狐狸的高斯。高斯可能是最早意识到非欧几何的存在，只是太违反现实直觉，而迟迟没有公布相关研究成果。“点”，“线”，“平面”的定义，已经在我们脑海里根深蒂固。但我们如果抛开成见，在球面上理解“黎曼几何”，将“点”理解为球面上一条直径的两个端点，一切都将是相容的。“点”如何定义无关紧要，重要的是据此而来的推理的相容性。<br>　　对于公理系统来说，公理是否自明为真无关紧要，重要的是推导出来的定理的相容性。对于形式化公理系统来说，有两个核心问题，“一致性”，“完备性”。<br>　　“一致性是指，从公理出发，不会推导出命题P和~P同时为真”<br>　　“完备性是指，该公理系统中真命题，都能够从公理系统推导出”<br>　　形式系统已经将现实意义残忍剥离，而“一致性”和“完备性”就成了数学家最朴素的愿望，尤其是“一致性”。罗素和怀特海则在鸿篇巨著《数学原理》中将数学系统抽象成纯逻辑系统；大卫·希尔伯特提出了“一致性”的绝对证明原则。<br>　　可是，希尔伯特和罗素的愿望，被当时的青年才俊无需担心买房的哥德尔无情击破。1931年，维也纳大学时年25岁的库尔特·哥德尔，发表“论《数学原理》及相关系统的形式不可判定命题”，成为逻辑和数学史上的一座里程碑。哥德尔采用了类似于“说谎者”悖论的论证逻辑。（或者“理发师悖论”。具体什么悖论，结果都会殊途同归，只要这些悖论谈论他们自身。有时间会整理各种有意思的悖论和思想实验）<br>　　“我说的这句话是假的。” 这个命题是不可判定的。<br>　　哥德尔给了数学家、逻辑学家、哲学家几乎是致命的一击，以至于伟大的语言哲学家维特根斯坦终生拒绝相信哥德尔的结论（就是那个博士答辩，让导师罗素、摩尔、魏斯曼不敢开口提问的天才。他的传记参见《维特根斯坦传：天才之为责任》）。<br>　　哥德尔不完备定理的证明核心有两点：</p>
 <ul>
 <li>哥德尔映射（同构）：借助哥德尔配数法，将形式逻辑系统内的合法公式映射为整数（哥德尔数）；将形式系统的元命题映射为整数之间的算术性质！借助于算术的桥梁，谈论该系统的某个元命题，其实就是该系统内的某个公式。形式系统有了忠实谈论自身的能力（自指的魔力，带来悖论的魔力）。</li>
 <li>构建元命题的公式G：“G在本形式系统不可证”</li>
@@ -235,7 +235,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://luoxc.com/2017/09/17/godel-proof/" data-id="cj7obff1v0002725df4vpg17e" class="article-share-link">Share</a>
+      <a data-url="http://luoxc.com/2017/09/17/godel-proof/" data-id="cj7obskx30003ry5d8ry4iid0" class="article-share-link">Partager</a>
       
       
     </footer>
@@ -244,9 +244,18 @@
     
 <nav id="article-nav">
   
+    <a href="/2017/09/17/funny-equation-1-variance-decomposition/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Récent</strong>
+      <div class="article-nav-title">
+        
+          好玩的公式系列1：方差分解的联想
+        
+      </div>
+    </a>
+  
   
     <a href="/2017/04/05/ml-ch6-mitchell/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Older</strong>
+      <strong class="article-nav-caption">Ancien</strong>
       <div class="article-nav-title">贝叶斯学习</div>
     </a>
   
@@ -279,9 +288,13 @@
   
     
   <div class="widget-wrap">
-    <h3 class="widget-title">Recent Posts</h3>
+    <h3 class="widget-title">Articles récents</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2017/09/17/funny-equation-1-variance-decomposition/">好玩的公式系列1：方差分解的联想</a>
+          </li>
         
           <li>
             <a href="/2017/09/17/godel-proof/">哥德尔不完全性</a>
@@ -299,10 +312,6 @@
             <a href="/2017/04/04/assange/">阿桑奇自传</a>
           </li>
         
-          <li>
-            <a href="/2017/04/04/poor_charlies/">穷查理宝典</a>
-          </li>
-        
       </ul>
     </div>
   </div>
@@ -316,7 +325,7 @@
   <div class="outer">
     <div id="footer-info" class="inner">
       &copy; 2017 Finch Luo<br>
-      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+      Propulsé by <a href="http://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>
 </footer>

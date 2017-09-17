@@ -52,9 +52,9 @@
       </nav>
       <nav id="sub-nav">
         
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="Flux RSS"></a>
         
-        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+        <a id="nav-search-btn" class="nav-icon" title="Rechercher"></a>
       </nav>
       <div id="search-form-wrap">
         <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://luoxc.com"></form>
@@ -64,6 +64,102 @@
 </header>
       <div class="outer">
         <section id="main">
+  
+    <article id="post-funny-equation-1-variance-decomposition" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/09/17/funny-equation-1-variance-decomposition/" class="article-date">
+  <time datetime="2017-09-17T05:51:46.000Z" itemprop="datePublished">2017-09-17</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/09/17/funny-equation-1-variance-decomposition/">好玩的公式系列1：方差分解的联想</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>在“A FIRST COURSE IN PROBABILITY”里，偶然看到如下的条件方差分解公式：<br>$$Var(X) = Var(E[X|Z])+ E_X[Var(X|Z)]$$<br>于是我换了变量名，一下子熟悉起来：<br><strong>$$Var(Y) = Var(E_Y[Y|X])+ E_X[Var(Y|X)] $$</strong></p>
+<ul>
+<li>在机器学习中，X看做特征，Y为目标；在统计里，X看做自变量，Y看做因变量</li>
+<li>它表达了理想情况下，采用<strong>MSE准则</strong>，预测函数$Y=g(X)=E_Y[Y|X]$时的方差组成：<ul>
+<li>可以解读为: $target_var =  captured_var + MSE$</li>
+<li>$ Var(E_Y[Y|X])$: $captured_var$, 表征预测模型捕获的方差。</li>
+<li>$ E_X[Var(Y|X)] $：表征预测残差，此时的MSE只有噪声，没有模型偏差。</li>
+<li>$R^2 = \frac{Var(E_Y[Y|X])}{Var(Y)} $: 统计学里称之为<strong>“决定系数”</strong>。$R^2$越接近1，则表明$Y$的方差几乎都被$g(X)$捕获，预测残差小，预测的效果好；也说明数据质量好，噪音小！在这种理想情况下($g(X) = E_Y[Y|X]$)，可以用$R^2$评估数据质量。</li>
+</ul>
+</li>
+<li><p>事实上，往往预测函数$Y=g(X)\  \neq E_Y[Y|X]$：</p>
+<ul>
+<li>预测函数不能有效捕获Y的方差，MSE增大：$captured_var &lt; Var(E_Y[Y|X])$，$MSE &gt; E_X[Var(Y|X)]$,</li>
+<li>MSE的误差来源包含两部分：固有噪声$E_X[Var(Y|X)]$（机器学习中称为<strong>方差variance</strong>）和模型误差（机器学习中称为<strong>偏差bias</strong>），具体见下文证明。</li>
+<li>若$g(X)$太差，将导致模型偏差部分非常大！机器学习中称之为“<strong>欠拟合</strong>”，下面是可能的原因：<ul>
+<li>数据量过小，不能有效的估计出$E[Y|X]$</li>
+<li>特征太差，没有表征力（极端情况下X和Y独立，见下文分析）</li>
+<li>假设空间容量不够大，没有$E_X[Y|X]$及其有效近似。（如采用线性拟合非线性数据）</li>
+<li>假设空间足够大，但是没有有效的搜索策略。（如nerual network高度非凸的搜索空间）    </li>
+</ul>
+</li>
+<li>要防止在训练集上过度拟合$g(X)$：<ul>
+<li>机器学习中称之为<strong>“过拟合”</strong>：在训练集上近乎完美的拟合数据，但在测试集上表现糟糕, 因为：</li>
+<li>现实数据集往往是有限的、有噪声的<ul>
+<li>数据有限：极有限的数据可能难以反应真实数据分布， $g(X)$可能会拟合出过于复杂但不真实的形状，它可能会造成方差和偏差都增大；</li>
+<li>数据噪声：噪声往往来源于固有噪声、数据收集噪声(如生产系统上的各种错误导致label不正确)等。这里只考虑固有噪声，即Y并不是X的确定性函数（如MSE假设$y = f(x) + \delta, \ \delta \sim N(0, \sigma)$）。通常，完美拟合训练集，$g(X)$会拟合噪声的波动，导致函数过于复杂，极小的$\Delta x$，会带来极大的$\Delta g(x)$；即我们通常所说的“方差过大，导致过拟合”</li>
+<li>一般而言，我们在减小偏差(解决欠拟合)时，要防范方差爆炸（防范过拟合），可以采取正则化,drop out，bagging等一系列措施。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>当$X$与$Y$独立时（即特征X太烂，无法表征目标Y）: </p>
+<ul>
+<li>公式右边退化为$Var(Y) + 0$</li>
+<li>预测函数将完全无法捕获$Y$的方差</li>
+<li>MSE中的偏差部分将增大！（特征工程很重要）</li>
+</ul>
+</li>
+<li><p>如何更好的使$g(X)$逼近$E[Y|X]$呢？</p>
+<ul>
+<li>对于条件期望$E[Y|X]$, 若对于每一个可能的$X$, 都有足够多样本来估计Y的条件期望；之后的预测，就只需查表。显然，不符合现实。</li>
+<li>对每个点$X$我们无法得到足够样本，但是可以将X的空间分段，进行分段拟合；</li>
+<li>分段拟合为防止过拟合，可以限定假设空间为3次自然样条。</li>
+<li>KNN采用$g(x) = Avg(y_i\ |\ x_i \in N_k(x))$来近似$E[Y|X=x]$</li>
+</ul>
+</li>
+<li><p>在抽样理论中：可尝试使用随机变量$E_Y[Y|X]$ 代替$Y$来模拟$E[Y]$,减小抽样方差， 因为：</p>
+<ul>
+<li>$E_X[E_Y[Y|X]] = E[Y]$</li>
+<li>$Var(E_Y[Y|X]) \le Var(Y)$</li>
+</ul>
+</li>
+</ul>
+<p><strong>MSE预测：</strong>对于MSE损失函数$L = E[Y-g(X)]^2$的解为：$g(X) = E[Y|X]$<br><strong>引理：</strong> $$\forall g(X), E[(Y-g(X))^2 | X] = \<br> E[(Y- E[Y|X])^2 |X] + E[(E(Y|X) - g(X))^2|X] \<br> \ge  E[(Y- E[Y|X])^2 |X]$$</p>
+<ul>
+<li>$ E[(Y- E[Y|X])^2 |X] $：数据分布固有噪声,如高斯白噪声等。称之为方差variance。</li>
+<li>$E[(E(Y|X) - g(X))^2|X] $:  模型误差部分，称之为偏差bias。如真实函数为二次，却用线性回归拟合。模型误差受限于假设空间的容量，也受限于在假设空间的搜索过程（可能是局部最小值，并不能得到最优的$E(Y|X)$）</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://luoxc.com/2017/09/17/funny-equation-1-variance-decomposition/" data-id="cj7obskwl0000ry5dl315rmjn" class="article-share-link">Partager</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
   
     <article id="post-godel-proof" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
@@ -87,7 +183,7 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>　　本文内容主要来自于Ernest Nagel和James R. Newman的《哥德尔证明》一书，笔者根据按照书中逻辑，结合最近（也许有遥远过去看过的书）的一系列阅读，简述相关内容。<br>　　在几何学的历史上，有一段传奇公案：欧几里得第五公设（平行公理）的研究。<br>　　“过直线外一点，有且仅有一条直线与已知直线平行” – <strong>欧氏几何</strong><br>　　不同于其它四条公理，平行公理并非那么显然为真。大量数学家涌入该领域，希望：要么证明平行公理是从其它公理推导出来的定理，要么证明平行公理是不可或缺的。<br>　　可是，这两条途径都失败了。少数天才数学家意识到，平行公理既无法证明是定理，也并非不可或缺。非欧几何就此诞生。罗巴切夫斯基提出“罗氏几何”，黎曼提出“黎曼几何”（后用于解释广义相对论）。<br>　　“过直线外一点，至少可以做两条直线与已知直线平行” – <strong>罗氏几何</strong><br>　　“过直线外一点，没有直线与已知直线平行” – <strong>黎曼几何</strong><br>　　其时，意识到非欧几何的，还有更早的匈牙利21岁的鲍耶·雅诺什，以及人称数学王子和老狐狸的高斯。高斯可能是最早意识到非欧几何的存在，只是太违反现实直觉，而迟迟没有公布相关研究成果。“点”，“线”，“平面”的定义，已经在我们脑海里根深蒂固。但我们如果抛开成见，在球面上理解“黎曼几何”，将“点”理解为球面上一条直径的两个端点，一切都将是相容的。“点”如何定义无关紧要，重要的是据此而来的推理的相容性。<br>　　对于公理系统来说，公理是否自明为真无关紧要，重要的是推导出来的定理的相容性。对于形式化公理系统来说，有两个核心问题，“一致性”，“完备性”。<br>　　“一致性是指，从公理出发，不会推导出命题P和~P同时为真”<br>　　“完备性是指，该公理系统中真命题，都能够从公理系统推导出”<br>　　形式系统已经将现实意义残忍剥离，而“一致性”和“完备性”就成了数学家最朴素的愿望，尤其是“一致性”。罗素和怀特海则在鸿篇巨著《数学原理》中将数学系统抽象成纯逻辑系统；大卫·希尔伯特提出了“一致性”的绝对证明原则。<br>　　可是，希尔伯特和罗素的愿望，被当时的青年才俊无需担心买房的哥德尔无情击破。1931年，维也纳大学时年25岁的库尔特·哥德尔，发表“论《数学原理》及相关系统的形式不可判定命题”，成为逻辑和数学史上的一座里程碑。哥德尔采用了类似于“说谎者”悖论的论证逻辑。（或者“理发师悖论”。具体什么悖论，结果都会殊途同归，只要这些悖论谈论他们自身。有时间会整理各种有意思的悖论和思想实验）<br>　　“我说的这句话是假的。” 这个命题是不可判定的。<br>　　哥德尔给了数学家、逻辑学家、哲学家几乎是致命的一击，以至于伟大的语言哲学家维特根斯坦终生拒绝相信哥德尔的结论（就是那个博士答辩，让导师罗素、摩尔、魏斯曼不敢开口提问的天才。他的传记参见《维特根斯坦传：天才之为责任》）。<br>　　哥德尔不完备定理的证明核心有两点：</p>
+        <p>　　在几何学的历史上，有一段传奇公案：欧几里得第五公设（平行公理）的研究。<br>　　“过直线外一点，有且仅有一条直线与已知直线平行” – <strong>欧氏几何</strong><br>　　不同于其它四条公理，平行公理并非那么显然为真。大量数学家涌入该领域，希望：要么证明平行公理是从其它公理推导出来的定理，要么证明平行公理是不可或缺的。<br>　　可是，这两条途径都失败了。少数天才数学家意识到，平行公理既无法证明是定理，也并非不可或缺。非欧几何就此诞生。罗巴切夫斯基提出“罗氏几何”，黎曼提出“黎曼几何”（后用于解释广义相对论）。<br>　　“过直线外一点，至少可以做两条直线与已知直线平行” – <strong>罗氏几何</strong><br>　　“过直线外一点，没有直线与已知直线平行” – <strong>黎曼几何</strong><br>　　其时，意识到非欧几何的，还有更早的匈牙利21岁的鲍耶·雅诺什，以及人称数学王子和老狐狸的高斯。高斯可能是最早意识到非欧几何的存在，只是太违反现实直觉，而迟迟没有公布相关研究成果。“点”，“线”，“平面”的定义，已经在我们脑海里根深蒂固。但我们如果抛开成见，在球面上理解“黎曼几何”，将“点”理解为球面上一条直径的两个端点，一切都将是相容的。“点”如何定义无关紧要，重要的是据此而来的推理的相容性。<br>　　对于公理系统来说，公理是否自明为真无关紧要，重要的是推导出来的定理的相容性。对于形式化公理系统来说，有两个核心问题，“一致性”，“完备性”。<br>　　“一致性是指，从公理出发，不会推导出命题P和~P同时为真”<br>　　“完备性是指，该公理系统中真命题，都能够从公理系统推导出”<br>　　形式系统已经将现实意义残忍剥离，而“一致性”和“完备性”就成了数学家最朴素的愿望，尤其是“一致性”。罗素和怀特海则在鸿篇巨著《数学原理》中将数学系统抽象成纯逻辑系统；大卫·希尔伯特提出了“一致性”的绝对证明原则。<br>　　可是，希尔伯特和罗素的愿望，被当时的青年才俊无需担心买房的哥德尔无情击破。1931年，维也纳大学时年25岁的库尔特·哥德尔，发表“论《数学原理》及相关系统的形式不可判定命题”，成为逻辑和数学史上的一座里程碑。哥德尔采用了类似于“说谎者”悖论的论证逻辑。（或者“理发师悖论”。具体什么悖论，结果都会殊途同归，只要这些悖论谈论他们自身。有时间会整理各种有意思的悖论和思想实验）<br>　　“我说的这句话是假的。” 这个命题是不可判定的。<br>　　哥德尔给了数学家、逻辑学家、哲学家几乎是致命的一击，以至于伟大的语言哲学家维特根斯坦终生拒绝相信哥德尔的结论（就是那个博士答辩，让导师罗素、摩尔、魏斯曼不敢开口提问的天才。他的传记参见《维特根斯坦传：天才之为责任》）。<br>　　哥德尔不完备定理的证明核心有两点：</p>
 <ul>
 <li>哥德尔映射（同构）：借助哥德尔配数法，将形式逻辑系统内的合法公式映射为整数（哥德尔数）；将形式系统的元命题映射为整数之间的算术性质！借助于算术的桥梁，谈论该系统的某个元命题，其实就是该系统内的某个公式。形式系统有了忠实谈论自身的能力（自指的魔力，带来悖论的魔力）。</li>
 <li>构建元命题的公式G：“G在本形式系统不可证”</li>
@@ -233,7 +329,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://luoxc.com/2017/09/17/godel-proof/" data-id="cj7obff1v0002725df4vpg17e" class="article-share-link">Share</a>
+      <a data-url="http://luoxc.com/2017/09/17/godel-proof/" data-id="cj7obskx30003ry5d8ry4iid0" class="article-share-link">Partager</a>
       
       
     </footer>
@@ -319,7 +415,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://luoxc.com/2017/04/05/ml-ch6-mitchell/" data-id="cj7obff250005725dyazufxb6" class="article-share-link">Share</a>
+      <a data-url="http://luoxc.com/2017/04/05/ml-ch6-mitchell/" data-id="cj7obskxc0006ry5d3gq3bzv1" class="article-share-link">Partager</a>
       
       
     </footer>
@@ -369,7 +465,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://luoxc.com/2017/04/04/ml-ch2-mitchell/" data-id="cj7obff200004725df0t2mx18" class="article-share-link">Share</a>
+      <a data-url="http://luoxc.com/2017/04/04/ml-ch2-mitchell/" data-id="cj7obskx80005ry5drpdln4yg" class="article-share-link">Partager</a>
       
       
     </footer>
@@ -428,7 +524,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://luoxc.com/2017/04/04/assange/" data-id="cj7obff1s0001725d472ymx2q" class="article-share-link">Share</a>
+      <a data-url="http://luoxc.com/2017/04/04/assange/" data-id="cj7obskx00002ry5dci63y7r9" class="article-share-link">Partager</a>
       
       
     </footer>
@@ -510,7 +606,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://luoxc.com/2017/04/04/poor_charlies/" data-id="cj7obff290006725d5dazdouw" class="article-share-link">Share</a>
+      <a data-url="http://luoxc.com/2017/04/04/poor_charlies/" data-id="cj7obskxm0008ry5dzviipjkg" class="article-share-link">Partager</a>
       
       
     </footer>
@@ -611,7 +707,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://luoxc.com/2017/02/19/talking-Ax/" data-id="cj7obff2b0007725dhblac3yx" class="article-share-link">Share</a>
+      <a data-url="http://luoxc.com/2017/02/19/talking-Ax/" data-id="cj7obskxf0007ry5d0bmfl1u0" class="article-share-link">Partager</a>
       
       
     </footer>
@@ -688,7 +784,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://luoxc.com/2017/02/18/hexo-博客搭建指南/" data-id="cj7obff1y0003725d77v859na" class="article-share-link">Share</a>
+      <a data-url="http://luoxc.com/2017/02/18/hexo-博客搭建指南/" data-id="cj7obskx60004ry5ddhlcm3ri" class="article-share-link">Partager</a>
       
       
     </footer>
@@ -725,7 +821,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://luoxc.com/2017/02/18/Hello-Xigua/" data-id="cj7obff1l0000725d0nif3dcn" class="article-share-link">Share</a>
+      <a data-url="http://luoxc.com/2017/02/18/Hello-Xigua/" data-id="cj7obskwv0001ry5dak5lrjw8" class="article-share-link">Partager</a>
       
       
     </footer>
@@ -760,9 +856,13 @@
   
     
   <div class="widget-wrap">
-    <h3 class="widget-title">Recent Posts</h3>
+    <h3 class="widget-title">Articles récents</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2017/09/17/funny-equation-1-variance-decomposition/">好玩的公式系列1：方差分解的联想</a>
+          </li>
         
           <li>
             <a href="/2017/09/17/godel-proof/">哥德尔不完全性</a>
@@ -780,10 +880,6 @@
             <a href="/2017/04/04/assange/">阿桑奇自传</a>
           </li>
         
-          <li>
-            <a href="/2017/04/04/poor_charlies/">穷查理宝典</a>
-          </li>
-        
       </ul>
     </div>
   </div>
@@ -797,7 +893,7 @@
   <div class="outer">
     <div id="footer-info" class="inner">
       &copy; 2017 Finch Luo<br>
-      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+      Propulsé by <a href="http://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>
 </footer>
