@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+  
+  <title>哥德尔不完全性 | Mr Xigua</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="本文内容主要来自于Ernest Nagel和James R. Newman的《哥德尔证明》一书，笔者根据按照书中逻辑，结合最近（也许有遥远过去看过的书）的一系列阅读，简述相关内容。　　在几何学的历史上，有一段传奇公案：欧几里得第五公设（平行公理）的研究。　　“过直线外一点，有且仅有一条直线与已知直线平行” – 欧氏几何　　不同于其它四条公理，平行公理并非那么显然为真。大量数学家涌入该领域，希望">
+<meta property="og:type" content="article">
+<meta property="og:title" content="哥德尔不完全性">
+<meta property="og:url" content="http://luoxc.com/2017/09/17/godel-proof/index.html">
+<meta property="og:site_name" content="Mr Xigua">
+<meta property="og:description" content="本文内容主要来自于Ernest Nagel和James R. Newman的《哥德尔证明》一书，笔者根据按照书中逻辑，结合最近（也许有遥远过去看过的书）的一系列阅读，简述相关内容。　　在几何学的历史上，有一段传奇公案：欧几里得第五公设（平行公理）的研究。　　“过直线外一点，有且仅有一条直线与已知直线平行” – 欧氏几何　　不同于其它四条公理，平行公理并非那么显然为真。大量数学家涌入该领域，希望">
+<meta property="og:updated_time" content="2017-09-17T05:39:40.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="哥德尔不完全性">
+<meta name="twitter:description" content="本文内容主要来自于Ernest Nagel和James R. Newman的《哥德尔证明》一书，笔者根据按照书中逻辑，结合最近（也许有遥远过去看过的书）的一系列阅读，简述相关内容。　　在几何学的历史上，有一段传奇公案：欧几里得第五公设（平行公理）的研究。　　“过直线外一点，有且仅有一条直线与已知直线平行” – 欧氏几何　　不同于其它四条公理，平行公理并非那么显然为真。大量数学家涌入该领域，希望">
+  
+    <link rel="alternate" href="/atom.xml" title="Mr Xigua" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  
+    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  
+  <link rel="stylesheet" href="/css/style.css"><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  
+
+</head>
+
+<body>
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Mr Xigua</a>
+      </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">你好，西瓜</a>
+        </h2>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://luoxc.com"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-godel-proof" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/09/17/godel-proof/" class="article-date">
+  <time datetime="2017-09-17T02:28:30.000Z" itemprop="datePublished">2017-09-17</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      哥德尔不完全性
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>　　本文内容主要来自于Ernest Nagel和James R. Newman的《哥德尔证明》一书，笔者根据按照书中逻辑，结合最近（也许有遥远过去看过的书）的一系列阅读，简述相关内容。<br>　　在几何学的历史上，有一段传奇公案：欧几里得第五公设（平行公理）的研究。<br>　　“过直线外一点，有且仅有一条直线与已知直线平行” – <strong>欧氏几何</strong><br>　　不同于其它四条公理，平行公理并非那么显然为真。大量数学家涌入该领域，希望：要么证明平行公理是从其它公理推导出来的定理，要么证明平行公理是不可或缺的。<br>　　可是，这两条途径都失败了。少数天才数学家意识到，平行公理既无法证明是定理，也并非不可或缺。非欧几何就此诞生。罗巴切夫斯基提出“罗氏几何”，黎曼提出“黎曼几何”（后用于解释广义相对论）。<br>　　“过直线外一点，至少可以做两条直线与已知直线平行” – <strong>罗氏几何</strong><br>　　“过直线外一点，没有直线与已知直线平行” – <strong>黎曼几何</strong><br>　　其时，意识到非欧几何的，还有更早的匈牙利21岁的鲍耶·雅诺什，以及人称数学王子和老狐狸的高斯。高斯可能是最早意识到非欧几何的存在，只是太违反现实直觉，而迟迟没有公布相关研究成果。“点”，“线”，“平面”的定义，已经在我们脑海里根深蒂固。但我们如果抛开成见，在球面上理解“黎曼几何”，将“点”理解为球面上一条直径的两个端点，一切都将是相容的。“点”如何定义无关紧要，重要的是据此而来的推理的相容性。<br>　　对于公理系统来说，公理是否自明为真无关紧要，重要的是推导出来的定理的相容性。对于形式化公理系统来说，有两个核心问题，“一致性”，“完备性”。<br>　　“一致性是指，从公理出发，不会推导出命题P和~P同时为真”<br>　　“完备性是指，该公理系统中真命题，都能够从公理系统推导出”<br>　　形式系统已经将现实意义残忍剥离，而“一致性”和“完备性”就成了数学家最朴素的愿望，尤其是“一致性”。罗素和怀特海则在鸿篇巨著《数学原理》中将数学系统抽象成纯逻辑系统；大卫·希尔伯特提出了“一致性”的绝对证明原则。<br>　　可是，希尔伯特和罗素的愿望，被当时的青年才俊无需担心买房的哥德尔无情击破。1931年，维也纳大学时年25岁的库尔特·哥德尔，发表“论《数学原理》及相关系统的形式不可判定命题”，成为逻辑和数学史上的一座里程碑。哥德尔采用了类似于“说谎者”悖论的论证逻辑。（或者“理发师悖论”。具体什么悖论，结果都会殊途同归，只要这些悖论谈论他们自身。有时间会整理各种有意思的悖论和思想实验）<br>　　“我说的这句话是假的。” 这个命题是不可判定的。<br>　　哥德尔给了数学家、逻辑学家、哲学家几乎是致命的一击，以至于伟大的语言哲学家维特根斯坦终生拒绝相信哥德尔的结论（就是那个博士答辩，让导师罗素、摩尔、魏斯曼不敢开口提问的天才。他的传记参见《维特根斯坦传：天才之为责任》）。<br>　　哥德尔不完备定理的证明核心有两点：</p>
+<ul>
+<li>哥德尔映射（同构）：借助哥德尔配数法，将形式逻辑系统内的合法公式映射为整数（哥德尔数）；将形式系统的元命题映射为整数之间的算术性质！借助于算术的桥梁，谈论该系统的某个元命题，其实就是该系统内的某个公式。形式系统有了忠实谈论自身的能力（自指的魔力，带来悖论的魔力）。</li>
+<li>构建元命题的公式G：“G在本形式系统不可证”</li>
+</ul>
+<p>最终，哥德尔得到了如下的不完备定理：</p>
+<ul>
+<li><strong>哥德尔第一不完备性定理</strong>：任何包含算术系统的形式系统S（包括下文的PM）若是一致的，则是不完全的。<br>　　它说明，对于形式公理系统，“一致性”和“完备性”不可兼得。“一致性”是一个公理系统能用于解释现实的最基本要求，在不一致的系统里，任何合法命题都是定理，这样的公理系统没有意义。系统的“不完备性”说明，总有一些“真理”，根据我们的公理系统，是不可判定的－－也许，“哥德巴赫猜想”就是我们的数论系统无法判定的“真命题”。</li>
+<li><strong>哥德尔第二不完备性定理</strong>： 如果形式系统S包含算术系统，当S一致时，S的一致性无法在S内部证明。<br>　　更令人沮丧的是，即使我们放弃了“完备性”，“一致性”也无法仅在该公理系统内得到证明。通俗的说，我们无法使用算术系统的武器来证明算术系统的一致性。我们只能求助于算术系统之外的“元数学证明”。可问题是，我们将S纳入更强的形式系统S’， S’还是会逃不脱这两个不完备性定理。鱼和熊掌，不可兼得；放弃了熊掌，然而我们并不能证明得到的鱼就一定是鱼… </li>
+</ul>
+<p>整个证明的轮廓参照《哥德尔证明》简述如下：</p>
+<h3 id="一致性问题"><a href="#一致性问题" class="headerlink" title="一致性问题"></a>一致性问题</h3><p><strong>公理化运动：</strong>（如欧几里得第五公设） 从事纯数学研究的适当方法，就是从假设的公理前提推到出定理，而这些公理是否自明为真则无关紧要。</p>
+<ul>
+<li><strong>抽象</strong>：原则上数学命题可以表达任何东西；</li>
+<li><strong>形式化：</strong>数学证明的有效性只基于命题结构，与具体事物特性无关。</li>
+<li><p><strong>一致性问题：</strong> 一组公理是否是内部相容的，是否能确保不会推导出矛盾的定理。</p>
+<ul>
+<li>基本思想：为抽象系统找合理的“模型”或“解释”，使每一条公设为真，若该”模型“是一直的，则该抽象系统是一致的。</li>
+<li>存在的问题：将一致性的证明转嫁到”模型”上<ul>
+<li>若有多个相容的解释呢？即公设不完备的时候。如文中“三角形公理系统”中去掉公设2，则所有不少于3个点完全图都是一个解释；那么有些命题将是无法判定的？比如元素个数相关的命题。</li>
+<li>平面椭圆几何的一致性：平面-&gt;欧几里得球面；线-&gt; 大圆；点-&gt; 一对对顶点。</li>
+<li>几何公设代数化：利用笛卡尔坐标，将集合关系转化成代数关系。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><strong>完备性问题：</strong> 对一个形式化系统中所有为真的公式，都能从该系统的公理中推理出来。</p>
+</li>
+</ul>
+<h3 id="一致性的绝对证明"><a href="#一致性的绝对证明" class="headerlink" title="一致性的绝对证明"></a>一致性的绝对证明</h3><p><strong>元数学：</strong> 针对演绎统（形式系统）的命题</p>
+<ul>
+<li><strong>元数学命题：形式系统x是一致的</strong>。<ul>
+<li>演绎系统形式化；只按规则演绎。形式演算与“解释”分离。</li>
+<li>在证明一致性过程中，不能涉及到公式的无限数量的结构性质，也不能涉及到对公式的无限个操作运算。</li>
+</ul>
+</li>
+</ul>
+<h3 id="一致性绝对证明的例子"><a href="#一致性绝对证明的例子" class="headerlink" title="一致性绝对证明的例子"></a>一致性绝对证明的例子</h3><p>形式化的四步骤(以一个简单形式系统举例)：</p>
+<ol>
+<li>符号集（词汇）<ul>
+<li>命题变量： p, q, r等变量等，可用命题带入</li>
+<li>常量符号：<ul>
+<li>命题联结符：~ $\lor$  $\supset$ $\cdot$</li>
+<li>标点符号：(  )</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>公式：合法的形式字符串（语法）<ul>
+<li>命题变量是公式</li>
+<li>若S是公式，使用命题联结符的组合也是公式。</li>
+</ul>
+</li>
+<li>演绎规则<ul>
+<li>替换规则：将命题变量替换为其它公式得到一个新的公式。</li>
+<li>分离规则：若$S_1, S_1 \supset S_2, 则 S_2$</li>
+</ul>
+</li>
+<li>公理<ul>
+<li>$(p \lor p ) \supset p$</li>
+<li>$p \supset (p \lor q)$</li>
+<li>$(p \lor q) \supset (q \lor p)$</li>
+<li>$(p \supset q) \supset ((r \lor p) \supset (r \lor q))$</li>
+</ul>
+</li>
+</ol>
+<p><strong>定理：</strong>能从公理根据演绎规则得到的公式，称之为定理。<br><strong>一致性</strong>：公式$S$和公式$～S$无法同时成立，否则根据定理$p \supset (～p \supset q)$可以得到$q$,即任何公式都是定理；也就是说，<strong>只要证明至少一个公式不是定理，那么该系统就是一致的</strong>。</p>
+<p><strong>一致性证明过程：</strong> “重言”是四个公理都具备的性质，且具有遗传性，即所有定理都会有“重言”这一性质，但公式”$p \lor q$”不是重言的，因此不是定理，即说明上述形式系统时一致的。</p>
+<h3 id="哥德尔证明"><a href="#哥德尔证明" class="headerlink" title="哥德尔证明"></a>哥德尔证明</h3><h4 id="1-哥德尔配数法"><a href="#1-哥德尔配数法" class="headerlink" title="1. 哥德尔配数法"></a>1. 哥德尔配数法</h4><ul>
+<li>12个常量符号：1 ~ 12</li>
+<li>三种变量：<ul>
+<li>数字变量：大于12的不同素数</li>
+<li>命题变量：大于12的不同素数的平方</li>
+<li>谓词变量：大于12的不同素数的立方</li>
+</ul>
+</li>
+<li>公式：将公式字符串中的字符对应的哥德尔数，当做从2依次开始的素数的指数，这些因子的乘积作为该公式的哥德尔数</li>
+<li>公式序列：同上述公式处理方法，指数改成公式的哥德尔数。</li>
+</ul>
+<p>对于任意的哥德尔数，都能按照上述法则还原成相应的常量、变量、公式或公式序列。<br><strong>在PM系统中，严格来讲，公式没有“真”或”假”的概念，只有“是否是定理”的提法</strong>（即能否从公理推导而来），“真”或“假”是对应某些形如“ss0 = ss0”的公式的<strong>算术解释</strong>；在不严格的情况下，说公式为“真”，是指它是定理。而对于大量非公式的字符串 如”ss0+ss0”，它不是公式，更不可是定理，自然也没有真假之分的。</p>
+<p><strong>哥德尔映射引理：</strong> </p>
+<ul>
+<li>对于PM定理组成的无穷类，其中每一条定理，如果按照通常的算术含义加以解释，都表示一个算术真理</li>
+<li>对于算术真理的无穷类（<strong>原始递归算术真理</strong>），其中每一个真理转换成形式公式，就得到PM中的一条定理</li>
+<li>PM能忠实的谈论自身：有关PM的元数学真命题映照为PM的定理。</li>
+</ul>
+<p><strong>原始递归（primitive recursive）：</strong></p>
+<ul>
+<li>使用复合和递归作为中心运算来定义。</li>
+<li>总是停机的图灵机计算。</li>
+<li>公理：常函数、后继函数、投影函数是原始递归的。<br>参见维基百科“原始递归函数”</li>
+</ul>
+<h4 id="2-元数学的算术化"><a href="#2-元数学的算术化" class="headerlink" title="2. 元数学的算术化"></a>2. 元数学的算术化</h4><p>一组符号串在排列上的结构性质，可以通过探寻大整数的素因子性质来表述。即<strong>元数学算术化</strong></p>
+<ul>
+<li>$dem(x, z)$：它对应的元命题是，哥德尔数x的公式序列是哥德尔数z的公式在PM中的证明，它是<strong>整数x和z的原始递归关系</strong>。</li>
+<li>$Dem(x,z)$:表示$dem(x,z)$在PM中的<strong>形式符号公式</strong>。根据哥德尔引理，若$dem(x,z)$为真，则$Dem(x,z)$是PM中的定理。</li>
+<li>$sub(x, 17, x)$: 它对应的元命题是，将一个哥德尔数为x的公式中，凡是变量为$y(17)$的地方用$x$对应的形式符号代替而得到的新公式的哥德尔数。$sub(\cdot)$是<strong>整数x和17的一个原始递归函数</strong>。</li>
+<li>$Sub(x, 17, x)$: 表示$sub(x, 17, x)$在PM中对应的<strong>形式符号串</strong>。</li>
+</ul>
+<h4 id="3-哥德尔论证的核心"><a href="#3-哥德尔论证的核心" class="headerlink" title="3. 哥德尔论证的核心"></a>3. 哥德尔论证的核心</h4><p><strong>论证步骤：</strong></p>
+<ul>
+<li><p>构造PM中的公式G，对应元命题：使用PM的规则，公式G不可证。</p>
+<ul>
+<li>公式$\sim (\exists x)\ Dem(x, Sub(y, 17, y)) $的哥德尔数是n, 元命题：哥德尔数为$sub(y, 17, y)$的公式不可证明</li>
+<li>公式$G$ 定义为$\sim (\exists x)\ Dem(x, Sub(n, 17, n)) $的哥德尔g，则$g = sub(n, 17, n)$.</li>
+</ul>
+</li>
+<li><p>G是可证明的，当且仅当~G是可证明的。若PM是一致的，则G和~G都形式不可证，即G是一个不可判定的公式</p>
+</li>
+<li><p>G形式不可证明，却是真的，因此<strong>PM本质上是不完备的</strong>。</p>
+<ul>
+<li>当PM不一致时，从元数学论证的角度，G陈述的是真理：G在PM中不存在证明</li>
+</ul>
+</li>
+<li><p>元命题“若PM是一致的（公式A），则公式G是不可证的”</p>
+<ul>
+<li>公式A: $(\exists y) \sim \ (\exists x)\  Dem(x, y) $ 元命题：PM是不一致的。</li>
+<li>公式G: $\sim (\exists x)\ Dem(x, Sub(n, 17, n)) $ 元命题：G是不可证的</li>
+<li>公式“$A \supset G$”在PM中是可证的。它的元命题正如题干所述。</li>
+</ul>
+</li>
+<li>当PM一致时，公式A在PM中是形式不可证的，否则G可证。因此，<strong>PM的一致性是无法使用能映照到PM内部的逻辑推理实现的</strong>。</li>
+</ul>
+<h3 id="八、结论性思考"><a href="#八、结论性思考" class="headerlink" title="八、结论性思考"></a>八、结论性思考</h3><ul>
+<li>创造性思想将永远体现在数学中，创造性将永远是必需的。</li>
+<li>人的思想从根本上不是一种逻辑引擎，而是一种模拟引擎，一种学习引擎，一种猜测引擎，一种审美驱动的引擎，自我校正的引擎。</li>
+<li>我们不应为此感到沮丧，而应把握住这个对创造性理性在此赞赏的机会。</li>
+<li>每一次数学危机，都是对人类认知无比艰巨的挑战，但每一次都引导了人类智力的大爆发。从负数的引进，从无理数的发现，从欧几里得第五公设的危机，从根式可解性，从古典三大尺规作图难题，从无穷小困窘，从逻辑基础的“理发师悖论”… 每一次危机和挑战，吸引了无数青年才俊、顶尖人类智力的扎堆投入，也正因为如此，也才有了度过每一次危机之后的人类认知的巨大爆发… 就像寒武纪生物种群大爆发一样…诞生了那么多耀眼的青年才俊…于是我们有了负数、无理数、虚数、群论、微积分、集合论…</li>
+</ul>
+<h3 id="相关信息"><a href="#相关信息" class="headerlink" title="相关信息"></a>相关信息</h3><ul>
+<li>《哥德尔证明》</li>
+<li>《GEB》</li>
+<li>《信息简史》</li>
+<li>《通信的数学原理》</li>
+<li>《混沌，开创新科学》</li>
+<li>《失控》</li>
+<li>《逻辑的引擎》</li>
+<li>《人工智能哲学》</li>
+<li>《艾伦·图灵传》</li>
+<li>莱布尼茨 – 布尔– 巴贝奇 – 邱奇– 图灵– 香农– 哥德尔– 蔡廷– 所罗门洛夫–冯·诺依曼– 科尔戈莫洛夫</li>
+<li>模式–随机性–信息– 复杂性–逻辑深度–可计算数–混沌</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://luoxc.com/2017/09/17/godel-proof/" data-id="cj7obc8cc0002125d1nw04pw2" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2017/04/05/ml-ch6-mitchell/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">贝叶斯学习</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+
+  
+    
+
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li></ul>
+    </div>
+  </div>
+
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recent Posts</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2017/09/17/godel-proof/">哥德尔不完全性</a>
+          </li>
+        
+          <li>
+            <a href="/2017/04/05/ml-ch6-mitchell/">贝叶斯学习</a>
+          </li>
+        
+          <li>
+            <a href="/2017/04/04/ml-ch2-mitchell/">概念学习</a>
+          </li>
+        
+          <li>
+            <a href="/2017/04/04/assange/">阿桑奇自传</a>
+          </li>
+        
+          <li>
+            <a href="/2017/04/04/poor_charlies/">穷查理宝典</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2017 Finch Luo<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  <script src="/fancybox/jquery.fancybox.pack.js"></script>
+
+
+<script src="/js/script.js"></script>
+
+  </div><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+</body>
+</html>
