@@ -52,9 +52,9 @@
       </nav>
       <nav id="sub-nav">
         
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="Flux RSS"></a>
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
         
-        <a id="nav-search-btn" class="nav-icon" title="Rechercher"></a>
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
       </nav>
       <div id="search-form-wrap">
         <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://luoxc.com"></form>
@@ -65,6 +65,370 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-tf-tutorial" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/12/31/tf-tutorial/" class="article-date">
+  <time datetime="2017-12-30T16:29:40.000Z" itemprop="datePublished">2017-12-31</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/机器的理智/">机器的理智</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/12/31/tf-tutorial/">Tensorflow tutorial</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>该文主要来自于TensorFlow白皮书，摘录了重点，以备不时之需。</p>
+<hr>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><ul>
+<li><a href="https://www.tensorflow.org/" target="_blank" rel="external">https://www.tensorflow.org/</a></li>
+<li>TensorFlow: Large-Scale Machine Learning on Heterogeneous Distributed Systems</li>
+</ul>
+<h3 id="Basic-concepts"><a href="#Basic-concepts" class="headerlink" title="Basic concepts"></a>Basic concepts</h3><p><strong>Operations</strong>: abstract computation(add, matrix multiply)</p>
+<ul>
+<li>attributes: </li>
+<li>inferred at graph-construction time</li>
+</ul>
+<p><strong>kernel</strong>: particular implementation of an operation on a particular type of device(GPU, CPU)</p>
+<p><strong>Tensors</strong></p>
+<ul>
+<li>typed, multi-dimensional array</li>
+<li>input or output of operations</li>
+<li>reference counted, and deallocated while no references remain.</li>
+</ul>
+<p><strong>Variable</strong>: </p>
+<ul>
+<li><strong>special operations</strong>, return a handle to a persistent mutable tensor</li>
+<li>“<strong>parameters</strong>“, survive across the whole session; updated as part of “Run”</li>
+<li>should call “initializer” in a session.</li>
+</ul>
+<p><strong>placeholder</strong></p>
+<ul>
+<li>“inputs” of a machine learning problem</li>
+<li>feed_dict of “Run”</li>
+</ul>
+<p><strong>Graph</strong></p>
+<ul>
+<li>represented the whole computation as a dataflow graph</li>
+<li>node: Operation objects(add, multiply, etc.)</li>
+<li>edge:  tensor</li>
+</ul>
+<p><strong>Session</strong>: </p>
+<ul>
+<li>used to enable Client to interact with TF sys, manage the “Graph” computation</li>
+<li>“Extend” method: augment the graph managed by the session</li>
+<li>“Run” method:  fetch names to be computed; feed tensors as input.</li>
+<li>run the whole graph or a few distinct subgraphs once</li>
+</ul>
+<p><strong>角色分工</strong></p>
+<ul>
+<li><strong>Client</strong>: the user side with TF codes， use Session to interact with “master”</li>
+<li><strong>Master</strong>: TF system role for scheduling</li>
+<li><strong>Worker</strong>: managed by master, responsible for managing “Devices” and run the actual “Tasks”.</li>
+<li><strong>Job and task:</strong> 实际的一次任务执行称为一个job，job由多个task(分布式环境下)构成，由workder实际执行；单机时，client, master, worker 在一个os process环境下 。</li>
+<li><strong>Devices:</strong> 实际的运算实体（CPU， GPU等）<ul>
+<li>device type and name</li>
+<li>device name example:  “ /job:localhost/device:cpu:0”</li>
+<li>device name example:  “/job:worker/task:17/device:gpu:3”<br><img src="./img/tf_tutorial/single_distribute_structure.png" alt="single_distribute_structure"></li>
+</ul>
+</li>
+</ul>
+<h3 id="Execution"><a href="#Execution" class="headerlink" title="Execution"></a>Execution</h3><h4 id="single-device-execution"><a href="#single-device-execution" class="headerlink" title="single-device execution"></a>single-device execution</h4><ul>
+<li>依据Graph的依赖关系执行</li>
+<li>每个node维护一个dependency counter; 当counter为0时，进入ready queue等待执行</li>
+<li>node s 执行完毕，将所有依赖s的下游node的counter减1</li>
+</ul>
+<h4 id="Multi-device-execution"><a href="#Multi-device-execution" class="headerlink" title="Multi-device execution"></a>Multi-device execution</h4><p><strong>Node placement</strong></p>
+<ul>
+<li>核心：基于cost model进行simulation, 将node放置在合适的device上</li>
+<li>cost model:<ul>
+<li>input,output  tensors’ sizes</li>
+<li>computation time</li>
+</ul>
+</li>
+<li>simulation:<ul>
+<li>使用贪心策略，依据Graph dependency，依次决定nodes的放置。</li>
+<li>对于Node s，考虑s所有可行的devices, 依据下面两条决定：<ul>
+<li>comunication time (if has): 可能的传输时间，如跨设备或分布式</li>
+<li>cost model<br><strong>Cross-device comunication</strong></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>vertex-centric partiton.</li>
+<li>在每个device上增加特殊节点：”Send”, “Receive”<ul>
+<li>隔离：所有跨设备的通信交由Send和Receive来处理，包括同步等。</li>
+<li>节省内存：在同一设备上多个节点依赖同一个tensor,只需要Receive管理一份，大大减少传输量和内存占用。</li>
+</ul>
+</li>
+</ul>
+<p><img src="./img/tf_tutorial/multi_device_commu.png" alt="multi_device_commu"></p>
+<h4 id="distributed-execution"><a href="#distributed-execution" class="headerlink" title="distributed execution"></a>distributed execution</h4><p>大部分执行机制同“Multi-device execution”</p>
+<h4 id="Fault-Tolerance"><a href="#Fault-Tolerance" class="headerlink" title="Fault Tolerance"></a>Fault Tolerance</h4><p><strong>出错检测</strong></p>
+<ul>
+<li>Send, Recieve 通信报错</li>
+<li>心跳机制检测</li>
+</ul>
+<p><strong>check-point 机制</strong></p>
+<ul>
+<li>Variable: 连接到Save node和Restore node<ul>
+<li>每隔一定周期，Save node对variable进行持久化</li>
+<li>恢复时，只在restart的第一次迭代时，将值赋给Variable</li>
+</ul>
+</li>
+</ul>
+<h3 id="Gradient-Computation"><a href="#Gradient-Computation" class="headerlink" title="Gradient Computation"></a>Gradient Computation</h3><p>TF提供自动的符号梯度计算</p>
+<ul>
+<li>[db,dW,dx] = tf.gradients(C, [b,W,x])<ul>
+<li>extending the computation graph</li>
+<li>backtracks from target C to source I, add “partial gradient node” to the Graph</li>
+<li>梯度的计算不仅依赖”partial gradient nodes”,还依赖前向过程的input和output（图中灰色线），会导致大量tensor不能释放，占用存储<ul>
+<li>更复杂的启发式规则，决定图计算顺序</li>
+<li>recomputing tensor，而不是存储</li>
+<li>将较长生存周期的tensor交换到cpu memory, 释放Gpu memory.<br><img src="./img/tf_tutorial/gradient_graph.png" alt="gradient_graph"></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3 id="Partial-Execution"><a href="#Partial-Execution" class="headerlink" title="Partial Execution"></a>Partial Execution</h3><p>TF支持执行subgraph, 并且支持在任意地方指定input tensor. 比如debug的时候，人为指定某个tensor的值。如图所示：<br><img src="./img/tf_tutorial/partial_excu.png" alt="partial_excu"></p>
+<ul>
+<li>feed: 指定替换的Input tensor 的 name[:port]; 如图中inputs={b}</li>
+<li>fetch: 指定观测结果的output tensor的 name[:port];如图中outputs={f:0}</li>
+<li>执行重写后的graph，其余无关节点不执行计算</li>
+</ul>
+<h3 id="Parallel-Techs"><a href="#Parallel-Techs" class="headerlink" title="Parallel Techs"></a>Parallel Techs</h3><h4 id="Queue"><a href="#Queue" class="headerlink" title="Queue"></a>Queue</h4><ul>
+<li>允许Graph的不同部分异步执行。（Ready Queue）</li>
+<li>Enqueue, Dequeue</li>
+<li>example: prefetch data for some nodes from disk while other nodes are computing according the Graph.</li>
+<li>grouping</li>
+<li>FIFO queue, shuffle queue</li>
+</ul>
+<h4 id="Data-Parallel-Training"><a href="#Data-Parallel-Training" class="headerlink" title="Data Parallel Training"></a>Data Parallel Training</h4><p>复制model(part of the Graph)到不同的devices，然后并行执行。</p>
+<ul>
+<li>SGD: mini-batch的并行执行<br><img src="./屏幕快照 2017-11-22 下午2.42.21.png" alt="Alt text"></li>
+</ul>
+<h4 id="Model-Parallel-Training"><a href="#Model-Parallel-Training" class="headerlink" title="Model Parallel Training"></a>Model Parallel Training</h4><p>模型的不同部分（different portions of the Graph）在不同的devcies上并行，处理同一批数据</p>
+<ul>
+<li>deep LSTM<br><img src="./屏幕快照 2017-11-22 下午2.44.09.png" alt="Alt text"></li>
+</ul>
+<h4 id="Concurrent-Steps-for-Model-Computation-Pipelining"><a href="#Concurrent-Steps-for-Model-Computation-Pipelining" class="headerlink" title="Concurrent Steps for Model Computation Pipelining"></a>Concurrent Steps for Model Computation Pipelining</h4><p>在同一个device内部进行流水线执行。</p>
+<p>### </p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://luoxc.com/2017/12/31/tf-tutorial/" data-id="cjbtkbpry000saf5dsgyifxi4" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-information-history" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/12/30/information-history/" class="article-date">
+  <time datetime="2017-12-30T15:52:27.000Z" itemprop="datePublished">2017-12-30</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/逻辑的引擎/">逻辑的引擎</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/12/30/information-history/">《信息简史》--信息的本质</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <hr>
+<p>　　该文主要来自于美国科普作家詹姆斯·格雷克的《信息简史》的摘要（他还写过一本畅销书《混沌：开创新科学》），观点非常深刻清晰，颇具启发性；前半部观点新奇，后半部观点深刻，深刻到我无法完全看懂，以至于看了多遍，仍没有自信以自己的语言来重构他的全部观点。不过，它可是完全勾起了我对<strong>信息论</strong>的兴趣，对香农的远见（还有书中描写的维纳的狭促）印象无比深刻，以至于屁颠地跑去找了香农信息论的原始论文阅读：《The Mathematical Theory of Communication》（通信的数学原理），看得似懂非懂意犹未尽（也可能自己的数学储备知识还不够，主要是关于马尔科夫链和随机过程的一些障碍）。另外，还发现了一本极好的书<a href="https://book.douban.com/subject/1789534/" target="_blank" rel="external">《Information Theory, Inference, and Learning Algorithms》</a>，作者是<a href="https://book.douban.com/search/David%20J.%20C.%20MacKay" target="_blank" rel="external">David J. C. MacKay</a>，只是可惜2017年被ESL缠斗太久，无暇去看。</p>
+<p>　　另外，书中关于艾伦·图灵与香农的一段神交，蔡廷和科尔戈莫洛夫关于扩展熵的定义殊途同归，蔡廷关于随机性与熵与图灵的不可计算数的联系，哥德尔不完备性与海森堡不确定原理之间的关系，太多联想充斥在脑中。一种不经意的喜悦，夹杂着无知与渴求的感觉。</p>
+<p>　　最后，顺便推荐这本图灵的传记<a href="https://book.douban.com/subject/10779604/" target="_blank" rel="external">图灵的秘密 : 他的生平、思想及论文解读</a>。只看了一小部分，等有空了一口气看完，再做笔记。等关于随机性、不可计算数、哥德尔不完备性、计算理论、信息论都有一定的根基了，再来改写这篇笔记，多写写自己的见解了。</p>
+<h3 id="摘录"><a href="#摘录" class="headerlink" title="摘录"></a>摘录</h3><ul>
+<li>而对它（信息）加以简化、精炼，并以比特度量后，人们发现信息几乎无处不在。香农的理论在信息与不确定性、信息与熵，以及信息与混沌之间架起了桥梁。</li>
+</ul>
+<ul>
+<li><p>词典为文字的持久性提供了正式认定，它表明一个字词的意义来自于其他的字词。这意味着，所有的字词聚集到一起，就可以形成一种互相关联的结构，因为所有的字词都是由其它的字词来定义的。这种现象在口语文化中并不存在，因为在那里语言是不可见的。只有当印刷术以及词典使语言成为一个个凸起的字符，可以被细细查看时，人们才能逐渐认识到字词的意义是互相依存，甚至是循环定义的。这时，字词必须被当做字词来看待，不同于所代表的事物，代表的只是其它字词。</p>
+</li>
+<li><p>词汇是对共同经验的一种量度，而后者来源于互连通性。</p>
+</li>
+<li><p>威尔金斯正试图接近信息最纯粹、最一般的形式，而文字只不过是其中一个特例：因为我们必须意识到，一般说来，任何能够创造出有效的差异，可为某种感官所感知的东西，都足以作为表达思想的手段。</p>
+</li>
+<li><p>语言至此被视作服务于两种独立的功能，既是表达的工具，也是思维的工具。人们一般假定，其中思维在先。对于布尔来说，逻辑就是思维，是思维经过打磨和提纯的结果。</p>
+</li>
+<li><p>我的办公室里就有一部电话，不过更多的是用来展示。如果我想发条讯息的话，我可以使用发报机，或差一个童仆去跑腿就行了…… 人们在面对一种全新技术时通常会遭遇想象力失灵。人们对于电报已经很熟悉，但与之相关的经验却无法移用到电话这种新设备上来。</p>
+</li>
+<li><p>当可连通的电话数量超过了某个临界值时，其拓扑结构就发生了变化，而且这种变化来得异常迅速。社区性的电话网络出现了，其相互连通的功能由一种称为交换机的新型设备来管理。</p>
+</li>
+<li><p>如果把图灵机简化到只剩下一张有限的状态表以及一个有限的输入集，那么图灵机本身就可以用数来表示… 图灵给他的机器编码，就如同哥德尔给他的符号逻辑语言编码一样。如此这般，数据和指令之间区分就被消除了：说到底，它们都不过是数而已。每个可计算数，必定对应着一个机器编号。</p>
+</li>
+<li><p>任何用于生成公式的机械的流程，本质上都是一台图灵机。因此，任何形式体系中必然存在不可判定的命题。数学是不可判定的，其不完全性来源自不可计算性。</p>
+</li>
+<li><p>当数被拿来编码机器的行为时，悖论就会再次现身。这涉及不可避免的递归纠缠：被计算的实体与进行计算的实体纠缠到了一起，带来种种恶果…物理学同样新近遇到了类似的难题：海森堡不确定原理… 过去我们一直假定，在科学中，只要知道了宇宙在某一时刻的全部状态，我们就能把宇宙所有的未来状态都预测出来…但更为现代的科学却认为，当我们面对原子和电子时，我们无法知道它们的全部确切状态，因为我们所用的仪器本身就是有原子和电子构成的。</p>
+</li>
+<li><p>图灵和香农都在使用编码，只是图灵把指令编码成数，将十进制数编码成0和1，而香农是对基因、染色体、继电器和开关编码。他们的灵巧智慧都应用在了如何将一类事物映射到另一类事物（例如，代数函数与机器指令，逻辑运算与电路），也就是找出两类事物之间严格的对应关系上。<strong>在他们心智的武器库中，符号运算以及映射的思想占据着举足轻重的地位。</strong></p>
+</li>
+<li><p>在香农看来，一条讯息就像一个动力系统，它的未来走向会受到过去历史的影响。</p>
+</li>
+<li><p>计算一个系统（如热力学系统）所有可能组合，可以发现其中无序状态远多于有序状态… 因此，有序状态的熵低，出现概率也低。</p>
+</li>
+<li><p>熵就成了概率在物理学上的等价物：某一给定宏观状态的熵，就是它所对应的围观状态数目的对数。因此，热力学第二定律揭示的是，宇宙从可能性较小的（有序的）宏观状态演化为可能性较大的（无序的）宏观状态的趋势。</p>
+</li>
+<li><p>它（麦克斯韦的妖）能看见，热力学第二定律只是在统计意义上成立，而不是由某种物理原因所决定的。事实上，在分子水平，这条定律就会被随机地违背。而这个妖则是用具有目的性的行为替代了这种随机性。<strong>它用信息降低了熵</strong>。</p>
+</li>
+<li><p>神经系统本身的存在，就是依赖于能量的持续耗散。</p>
+</li>
+<li><p>信息不是免费的。麦克斯韦、汤姆森等人都默认知识是现成的–关于分子速度和轨迹的知识就直接摆在了这个妖的眼前。他们没有考虑到，获取这些信息是需要成本的… 信息是物理的。麦克斯韦妖则在两者之间架起了桥梁，它每处理一个粒子，就是做了一次信息与能量的转换。齐拉特发现，只要精确核算每次度量和记忆，这种转换也是可以精确计算的。</p>
+</li>
+<li><p>“我考虑的是，从一个集合中作出选择时会有多少信息产生– 这样一来，集合越大，产生的信息越多。而你考虑的是，集合越大，不确定性越高时，对于该情况的知识就越少，因而信息也就越少。”换句话说，H度量的是出人意料的程度。</p>
+</li>
+<li><p>我们都像麦克斯韦妖一样活动。生物体(organism)，顾名思义，时刻在组织(organize)…收发邮件，创作诗词，音乐，制造工具等。</p>
+</li>
+<li><p>讯息越有规律，就越可预测；越可预测，就越冗余；越冗余，含有的信息就越少。随机程度如何与含有多少信息其实是同一个问题。</p>
+</li>
+<li><p>为什么说$\pi$不是随机的呢？蔡廷给出了一个明确的回答：一个数只要是可计算的，即它能够被一个可定义的计算机程序生成，那它就不是随机的。因为，可计算性是随机性的一种度量。</p>
+</li>
+<li><p>柯尔莫哥洛夫描述了三种度量（信息的）途径：基于组合、基于概率，以及基于算法… 以避免考虑所有可能对象组成的系统时可能遇到的问题。这种途径关注对象本身。</p>
+</li>
+<li><p>当人或计算机从经验中学习时，他们是在使用归纳推理，从无规律的信息流里识别出规律来。从这个意义上说，科学定律其实就是一种数据压缩，而理论物理学家就像是一个非常聪明的编码算法。</p>
+</li>
+<li><p>所罗门洛夫感兴趣的是归纳推理：给定一个观察数据的序列，人们如何作出关于后续事件的最优预测？柯尔莫哥洛夫寻找的则是随机性的数学定义：通过掷硬币以相同概率生成的两个序列，说一个序列比另一个序列更随机是什么意思？而蔡廷试图借助图灵和香农的理论，找到另一条更深刻地认识哥德尔不完全性定理的途径，正如他后来所说，“将香农的信息论和图灵的可计算理论倒进调酒器里，然后用例晃动”。最终他们三人的答案都与最短程序的长度有关，与复杂性有关。</p>
+</li>
+<li><p>信息不是不具实体的抽象，而总是与物理载体相联系，因而也必须遵循物理定理…无论它是表现为石板上的一个刻记、打孔卡片上的一个孔洞，还是一个粒子的自旋，信息都不可能摆脱某种物理载体而独立存在… 兰道尔提出，只有不可逆的操作，才会导致熵的增加。</p>
+<p>许多计算可以不耗费任何能量就能完成，而热量耗散也只有在擦除信息时才会发生。擦除是一种不可逆的逻辑操作… 遗忘需要功。</p>
+</li>
+</ul>
+<h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ul>
+<li>作者简介：<a href="https://en.wikipedia.org/wiki/James_Gleick" target="_blank" rel="external">https://en.wikipedia.org/wiki/James_Gleick</a></li>
+<li>chaos software: <a href="http://www.cs.sjsu.edu/~rucker/chaos.htm" target="_blank" rel="external">http://www.cs.sjsu.edu/~rucker/chaos.htm</a></li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://luoxc.com/2017/12/30/information-history/" data-id="cjbtizv3g000qaf5dayxe5tn7" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-influence" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2017/12/30/influence/" class="article-date">
+  <time datetime="2017-12-30T15:46:43.000Z" itemprop="datePublished">2017-12-30</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/人文的意义/">人文的意义</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/12/30/influence/">《影响力》摘要</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>该文来自于《影响力》一书，书有点冗长，适合速度；暂且摘录一些有用的tips。</p>
+<h3 id="主要内容"><a href="#主要内容" class="headerlink" title="主要内容"></a>主要内容</h3><ul>
+<li>互惠</li>
+<li>承诺和一致</li>
+<li>社会认同</li>
+<li>喜好</li>
+<li>权威</li>
+<li>短缺</li>
+</ul>
+<h3 id="只言片语"><a href="#只言片语" class="headerlink" title="只言片语"></a>只言片语</h3><ul>
+<li>我们容忍这种美中不足（指根据某些“启动特征”做出的自动反应），多半也因为我们没有更好的办法。如果不借助这些经验和公式，我们只会永远裹足不前– 站在原地分类、评价、比较–而可以让我们采取行动的时间却在毫不留情的逝去。<strong>当我们的生活空间变得越来越充满了刺激和复杂多变时，我们也必然越来越频繁地依赖捷径来应付这一切</strong>。</li>
+<li>当人们有这种愿望、也有这个能力去对有关的信息进行分析时，他们更可能对这些信息做出有控制的反应；否则的话，更可能采取“咔嗒，哔”的反应方式…当人们觉得事不关己时，他们完全依赖“专家的话一定是对的”这一规则，说服他们的不是演讲本身，而是演讲者在教育领域的造诣和地位；而当人们会受到这一主张影响时，他们的态度就不一样了。</li>
+<li><strong>对比原理</strong>影响我们对先后接触到的两件东西的差别的判断。比如中介让你先看很差但是价钱又稍高的房子。<h4 id="互惠原理"><a href="#互惠原理" class="headerlink" title="互惠原理"></a>互惠原理</h4></li>
+<li>由于<strong>互惠原理</strong>的影响力，我们感到自己有义务在将来回报我们收到的恩惠、礼物、邀请等等。对这一类东西的接受往往与偿还的义务紧紧联系在一起… 我们人类社会发展成今天的样子，是因为我们的祖先学会了在一个以名誉作担保的义务偿还网络中分享他们的食物和技能。</li>
+<li>著名法国人类学家马塞尔·毛斯在描述人类文明的送礼过程以及与此有关的社会压力时说过这样的话：<strong>给予是一种义务，接受是一种义务，偿还也是一种义务</strong>。</li>
+<li>互惠原理的例子：埃塞俄比亚给墨西哥的捐款、商家的试用试吃服务、调查问卷附带的小礼品、甚至街边硬塞给你的礼物等。</li>
+<li>一般来说，整个社会对不遵守互惠原理的人的确有一种发自内心的厌恶。为了避免被贴上像忘恩负义这一类的标签，即使是不公平的交换我们有时候也是愿意接受的。</li>
+<li>互惠原理导致的<strong>拒绝–退让</strong>：如果他人对我们做出了让步，我们也有义务做出让步。因为妥协也可以是一个互惠的过程。</li>
+<li>如果他人最初的提议是我们想要的，我们就接受它，但我们接受的只是这个提议本身，与他人的角色无关..<strong>.互惠原理指出恩惠必须用恩惠来报答，但并没有说诡计也必须用恩惠来回报</strong>。</li>
+<li>那些反向破坏互惠原理的人–<strong>只给与却不给人回报的机会– 也会遭致人们的厌恶</strong>。<h4 id="承诺和保持一致"><a href="#承诺和保持一致" class="headerlink" title="承诺和保持一致"></a>承诺和保持一致</h4></li>
+<li>在很多情况下保持一致都是一种很有益、很得体的行为；自相矛盾被认为是一种不良的品性。若果一个人的信仰、言辞、行为相互矛盾，这个人就会被看做优柔寡断、头脑混乱、两面三刀。而另一方面，高度的一致则是和坚强的个性和优越的智力联系在一起的，是逻辑、理性、稳定和诚实的核心。</li>
+<li>一旦我们对一件事情做出了决定，固执地坚持这个决定就成了一种非常难得的奢侈，因为这意味着我们再也不用为这件事操心了。</li>
+<li>这种从小的请求开始最终达到对大请求的依从的策略，叫做“<strong>入门策略</strong>”：一旦他同意了某个请求，他的态度就变了，会尽可能的去保持承诺和一致。</li>
+<li><strong>一个承诺必须是积极的、公开的、经过努力才做出的、而且是人们自由选择的结果</strong>…做出一个承诺所需付出的努力越多，这个承诺对许诺者的影响就越大,要让这些人从内心深处对这个承诺负起责任来。<h4 id="社会认同原理"><a href="#社会认同原理" class="headerlink" title="社会认同原理"></a>社会认同原理</h4></li>
+<li><strong>不确定性</strong>：当人们对自己的处境不是很有把握时，更有可能根据他人的行为来决定自己应该怎么办。<strong>相似性</strong>：与我们类似的人对我们最有影响力。</li>
+<li>现象：当单独一个人看到门底冒烟时，75%的人报了警。然而同样的冒烟事件被一个三人小组看见时，报警的概率则降到了38%。但是，报警次数最少的时候还是当三人小组中有两人事先被告知要表现得若无其事的时候，这时候报警的概率降到了10%</li>
+<li><strong>多元无知效应</strong>在陌生人之间表现得最为显著：当旁观者不能肯定他们的目击事件是否紧急，尤其是这群人互不相识时，不施以援手的可能性最大。</li>
+<li>（<strong>当出现紧急事件时，）从人群中仅仅挑出一个人来，注视着他，指着他，直接对他说：“你，穿蓝夹克的先生，我需要帮助，请叫一辆救护车来。</strong>”</li>
+<li><strong>维特效应</strong>：大量报到自杀事件，会导致自杀事件发生的概率。</li>
+</ul>
+<h4 id="权威"><a href="#权威" class="headerlink" title="权威"></a>权威</h4><ul>
+<li>具有独立思考能力的成年人也会为了服从权威的命令而做出一些完全丧失理智的事情。<strong>在权威的强大压力面前，个人的抵抗是十分渺小的</strong>。</li>
+<li>来自权威的信息在很多情况下都为我们提供了一条行动的捷径。如老师和父母。一方面是他们拥有更多的智慧，另一方面也是由于他们就是决定赏罚的人。</li>
+<li>权威影响例子：电刑实验、R-ear眼药水</li>
+<li>（抵抗权威影响）最基本的方法是对权威保持高度的警觉。有了这种警觉，同时也意识到权威是多么容易造假，我们自然会采取一种比较谨慎的态度。</li>
+<li>问自己两个问题。<strong>第一，这个权威是不是真正的专家？第二，这个权威会不会对我们说真话</strong>？</li>
+</ul>
+<h4 id="短缺"><a href="#短缺" class="headerlink" title="短缺"></a>短缺</h4><ul>
+<li>去爱一样东西的方法之一就是意识到它可能会失去。</li>
+<li>稀缺的例子：有瑕疵的邮票、错版的硬币、被封禁的信息等。</li>
+<li>具有讽刺意义的是，对这种人–如一些可疑的政治团体–来说，为了让人们接受他们的观点，最有效的策略不是去公开宣扬这些观点，而是故意让这些观点遭受官方的封杀，然后再把被封杀的消息公之于众。</li>
+<li><strong>先拥有后失去的短缺威力更大</strong>。当经济条件和社会条件改善之后又发生短暂而急剧的倒退时，就是我们最有可能看到革命和动乱的时候。因此，在一个社会中，最容易揭竿而起的，并不是那些传统上受压迫最深的人，因为对他们来说，自己所受的压迫可能已经成了自然秩序的一部分。相反，革命者更可能是那些至少品尝过比较好的生活滋味的人。当他们亲身经历过并寄予厚望的经济上的和社会上的进步突然变得可望而不可及时，他们便会对这种进步产生比以前任何时候都更强烈的欲望，甚至不惜以暴力来保卫。</li>
+</ul>
+<h4 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h4><ul>
+<li>他们（依从业者）真正的罪状，也是我们不能容忍的一点，是他们赚钱的方法威胁到了我们的捷径的可靠性。<strong>我们必须借助稳妥可靠的捷径和经验来应付令人眼花缭乱的现代生活，这不是一种奢侈，而是一种必要</strong>。而且随着生活步调的加快，这些经验和捷径会显得越来越重要。因此，当我们看到有人为了自己的私利而践踏这些规则时，应该义愤填膺地对他们进行反击和声讨。</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://luoxc.com/2017/12/30/influence/" data-id="cjbtish8i000oaf5dbbg47vj1" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-funny-equation-1-variance-decomposition" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2017/09/17/funny-equation-1-variance-decomposition/" class="article-date">
@@ -72,7 +436,7 @@
 </a>
     
   <div class="article-category">
-    <a class="article-category-link" href="/categories/machine-learning/">machine learning</a>
+    <a class="article-category-link" href="/categories/机器的理智/">机器的理智</a>
   </div>
 
   </div>
@@ -167,7 +531,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://luoxc.com/2017/09/17/funny-equation-1-variance-decomposition/" data-id="cjbthgslm00028n5dbfz8g8yy" class="article-share-link">Partager</a>
+      <a data-url="http://luoxc.com/2017/09/17/funny-equation-1-variance-decomposition/" data-id="cjbthhaip0002af5d4tlxf4yj" class="article-share-link">Share</a>
       
       
     </footer>
@@ -349,7 +713,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://luoxc.com/2017/09/17/godel-proof/" data-id="cjbthgslq00038n5d0n0530xr" class="article-share-link">Partager</a>
+      <a data-url="http://luoxc.com/2017/09/17/godel-proof/" data-id="cjbthhais0003af5deo6j6rpj" class="article-share-link">Share</a>
       
       
     </footer>
@@ -366,7 +730,7 @@
 </a>
     
   <div class="article-category">
-    <a class="article-category-link" href="/categories/machine-learning/">machine learning</a>
+    <a class="article-category-link" href="/categories/机器的理智/">机器的理智</a>
   </div>
 
   </div>
@@ -443,7 +807,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://luoxc.com/2017/04/05/ml-ch6-mitchell/" data-id="cjbthgsm600078n5d1dpbjggv" class="article-share-link">Partager</a>
+      <a data-url="http://luoxc.com/2017/04/05/ml-ch6-mitchell/" data-id="cjbthhaj90007af5dsvn7fy8c" class="article-share-link">Share</a>
       
       
     </footer>
@@ -460,7 +824,7 @@
 </a>
     
   <div class="article-category">
-    <a class="article-category-link" href="/categories/machine-learning/">machine learning</a>
+    <a class="article-category-link" href="/categories/机器的理智/">机器的理智</a>
   </div>
 
   </div>
@@ -502,7 +866,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://luoxc.com/2017/04/04/ml-ch2-mitchell/" data-id="cjbthgsm400068n5dnkl0mrxj" class="article-share-link">Partager</a>
+      <a data-url="http://luoxc.com/2017/04/04/ml-ch2-mitchell/" data-id="cjbthhaj70006af5dz4ir62x0" class="article-share-link">Share</a>
       
       
     </footer>
@@ -519,7 +883,7 @@
 </a>
     
   <div class="article-category">
-    <a class="article-category-link" href="/categories/人文社科/">人文社科</a>
+    <a class="article-category-link" href="/categories/人文的意义/">人文的意义</a>
   </div>
 
   </div>
@@ -565,7 +929,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://luoxc.com/2017/04/04/assange/" data-id="cjbthgsli00018n5dejwuutkm" class="article-share-link">Partager</a>
+      <a data-url="http://luoxc.com/2017/04/04/assange/" data-id="cjbthhail0001af5dnxygn7r0" class="article-share-link">Share</a>
       
       
     </footer>
@@ -582,7 +946,7 @@
 </a>
     
   <div class="article-category">
-    <a class="article-category-link" href="/categories/人文社科/">人文社科</a>
+    <a class="article-category-link" href="/categories/人文的意义/">人文的意义</a>
   </div>
 
   </div>
@@ -651,7 +1015,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://luoxc.com/2017/04/04/poor_charlies/" data-id="cjbthgsm900088n5dw5lim17f" class="article-share-link">Partager</a>
+      <a data-url="http://luoxc.com/2017/04/04/poor_charlies/" data-id="cjbthhajb0008af5drgvuandk" class="article-share-link">Share</a>
       
       
     </footer>
@@ -668,7 +1032,7 @@
 </a>
     
   <div class="article-category">
-    <a class="article-category-link" href="/categories/machine-learning/">machine learning</a>
+    <a class="article-category-link" href="/categories/机器的理智/">机器的理智</a>
   </div>
 
   </div>
@@ -756,125 +1120,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://luoxc.com/2017/02/19/talking-Ax/" data-id="cjbthgsmb000a8n5dekqrb3xf" class="article-share-link">Partager</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-hexo-博客搭建指南" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2017/02/18/hexo-博客搭建指南/" class="article-date">
-  <time datetime="2017-02-18T13:47:43.000Z" itemprop="datePublished">2017-02-18</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/琐碎的实用主义/">琐碎的实用主义</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/02/18/hexo-博客搭建指南/">hexo 博客搭建指南</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="Install-hexo"><a href="#Install-hexo" class="headerlink" title="Install hexo"></a>Install hexo</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ npm install hexo -g</div></pre></td></tr></table></figure>
-<p>若npm很慢，请将npm的源换成taobao的。<br>如果出现问题，可以参见这篇文章：<a href="http://www.jianshu.com/p/b7886271e21a" target="_blank" rel="external">hexo 安装与配置</a></p>
-<h2 id="Initial-hexo-folder"><a href="#Initial-hexo-folder" class="headerlink" title="Initial hexo folder"></a>Initial hexo folder</h2><p>进入一个空文件夹，执行<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo init</div></pre></td></tr></table></figure></p>
-<h2 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h2><p>默认打开本地的4000端口，可以用于调试。可以马上看到hexo的hello world页面<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo server</div></pre></td></tr></table></figure></p>
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="external">Server</a></p>
-<h2 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h2><p>新建文章到 source/_posts/xxx.md, 通过相应md编辑器编辑即可。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo new <span class="string">"My New Post"</span></div></pre></td></tr></table></figure></p>
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="external">Writing</a></p>
-<h2 id="Link-to-github"><a href="#Link-to-github" class="headerlink" title="Link to github"></a>Link to github</h2><ul>
-<li><p>打开_config.yml, 在最后deploy 字段编写如下：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">deploy:</div><div class="line">  type: git</div><div class="line">  repo: https://github.com/XiongcaiLuo/XiongcaiLuo.github.io</div><div class="line">  branch: master</div></pre></td></tr></table></figure>
-</li>
-<li><p>该github的仓库名，必须命令为 your_github_name.github.io</p>
-</li>
-<li>保证 npm install hexo-deployer-git –save 执行成功； </li>
-</ul>
-<h2 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h2><p>生成静态文件到public目录，在发布之前必须先进行这个操作<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo generate</div></pre></td></tr></table></figure></p>
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="external">Generating</a></p>
-<h2 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h2><p>将文章部署到远程仓库，比如github。 在_config.yml中“deploy”进行配置。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo deploy</div></pre></td></tr></table></figure></p>
-<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="external">Deployment</a></p>
-<h2 id="Custom-domain"><a href="#Custom-domain" class="headerlink" title="Custom domain"></a>Custom domain</h2><ul>
-<li>购买域名</li>
-<li>进入相应工程，创建名为CNAME的文件，文件内容为域名</li>
-<li>工程右上角有个”Settings”, 进入之后,在“custom domain”处填写域名</li>
-<li>在域名商那里设置A record, 或者CNAME record。</li>
-</ul>
-<h2 id="Support-math"><a href="#Support-math" class="headerlink" title="Support math"></a>Support math</h2><ul>
-<li>执行操作:  npm install hexo-math –save</li>
-<li><p>在_config.yml中添加 plugins: hexo-math </p>
-<p>行内公式： $e^{i\pi} + 1 = 0$<br>行间公式： $$A = U \Sigma V$$</p>
-</li>
-</ul>
-<h2 id="Tips"><a href="#Tips" class="headerlink" title="Tips"></a>Tips</h2><ul>
-<li>hexo的命令一般可以用首字母缩写代替，比如 hexo server = hexo s<br>hexo deploy –generate = hexo d -g</li>
-<li>新建文章，并发布的操作一般是：<ul>
-<li>hexo n “your_article_title”</li>
-<li>hexo clean</li>
-<li>hexo d -g</li>
-</ul>
-</li>
-<li>在本地调试，不需要进行generate 和deploy.</li>
-</ul>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://luoxc.com/2017/02/18/hexo-博客搭建指南/" data-id="cjbthgslz00058n5djjynh734" class="article-share-link">Partager</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-Hello-Xigua" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2017/02/18/Hello-Xigua/" class="article-date">
-  <time datetime="2017-02-18T13:23:24.000Z" itemprop="datePublished">2017-02-18</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/02/18/Hello-Xigua/">Hello Xigua</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>你好，西瓜先生<br>桃李春风一杯酒，江湖夜雨十年灯<br>为有牺牲多壮志，敢叫日月换新天</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://luoxc.com/2017/02/18/Hello-Xigua/" data-id="cjbthgslc00008n5drii2rbrs" class="article-share-link">Partager</a>
+      <a data-url="http://luoxc.com/2017/02/19/talking-Ax/" data-id="cjbthhajd000aaf5d53gfasdn" class="article-share-link">Share</a>
       
       
     </footer>
@@ -885,15 +1131,19 @@
 
   
 
+
+  <nav id="page-nav">
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/">__('next') &raquo;</a>
+  </nav>
 </section>
         
           <aside id="sidebar">
   
     
   <div class="widget-wrap">
-    <h3 class="widget-title">Catégories</h3>
+    <h3 class="widget-title">Categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/machine-learning/">machine learning</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/人文社科/">人文社科</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/琐碎的实用主义/">琐碎的实用主义</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/逻辑的引擎/">逻辑的引擎</a></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/人文的意义/">人文的意义</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/机器的理智/">机器的理智</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/琐碎的胜利/">琐碎的胜利</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/逻辑的引擎/">逻辑的引擎</a></li></ul>
     </div>
   </div>
 
@@ -908,7 +1158,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/12/">December 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/09/">September 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/04/">April 2017</a></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2017/02/">February 2017</a></li></ul>
     </div>
   </div>
 
@@ -916,9 +1166,21 @@
   
     
   <div class="widget-wrap">
-    <h3 class="widget-title">Articles récents</h3>
+    <h3 class="widget-title">Recent Posts</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2017/12/31/tf-tutorial/">Tensorflow tutorial</a>
+          </li>
+        
+          <li>
+            <a href="/2017/12/30/information-history/">《信息简史》--信息的本质</a>
+          </li>
+        
+          <li>
+            <a href="/2017/12/30/influence/">《影响力》摘要</a>
+          </li>
         
           <li>
             <a href="/2017/09/17/funny-equation-1-variance-decomposition/">好玩的公式系列1：方差分解的联想</a>
@@ -926,18 +1188,6 @@
         
           <li>
             <a href="/2017/09/17/godel-proof/">哥德尔不完全性</a>
-          </li>
-        
-          <li>
-            <a href="/2017/04/05/ml-ch6-mitchell/">贝叶斯学习</a>
-          </li>
-        
-          <li>
-            <a href="/2017/04/04/ml-ch2-mitchell/">概念学习</a>
-          </li>
-        
-          <li>
-            <a href="/2017/04/04/assange/">阿桑奇自传</a>
           </li>
         
       </ul>
@@ -953,7 +1203,7 @@
   <div class="outer">
     <div id="footer-info" class="inner">
       &copy; 2017 Finch Luo<br>
-      Propulsé by <a href="http://hexo.io/" target="_blank">Hexo</a>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>
 </footer>
