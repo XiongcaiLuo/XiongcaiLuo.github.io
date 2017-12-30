@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Mr Xigua</title>
+  
+  <subtitle>你好，西瓜</subtitle>
+  <link href="/atom.xml" rel="self"/>
+  
+  <link href="http://luoxc.com/"/>
+  <updated>2017-12-30T17:18:52.000Z</updated>
+  <id>http://luoxc.com/</id>
+  
+  <author>
+    <name>Finch Luo</name>
+    
+  </author>
+  
+  <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>Tensorflow简明导论</title>
+    <link href="http://luoxc.com/2017/12/31/tf-tutorial/"/>
+    <id>http://luoxc.com/2017/12/31/tf-tutorial/</id>
+    <published>2017-12-30T17:13:22.000Z</published>
+    <updated>2017-12-30T17:18:52.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>该文主要来自于TensorFlow白皮书，摘录了重点，以备不时之需。</p><hr><h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><ul><li><a href="https://www.tensorflow.org/" target="_blank" rel="external">https://www.tensorflow.org/</a></li><li>TensorFlow: Large-Scale Machine Learning on Heterogeneous Distributed Systems</li></ul><h3 id="Basic-concepts"><a href="#Basic-concepts" class="headerlink" title="Basic concepts"></a>Basic concepts</h3><p><strong>Operations</strong>: abstract computation(add, matrix multiply)</p><ul><li>attributes: </li><li>inferred at graph-construction time</li></ul><p><strong>kernel</strong>: particular implementation of an operation on a particular type of device(GPU, CPU)</p><p><strong>Tensors</strong></p><ul><li>typed, multi-dimensional array</li><li>input or output of operations</li><li>reference counted, and deallocated while no references remain.</li></ul><p><strong>Variable</strong>: </p><ul><li><strong>special operations</strong>, return a handle to a persistent mutable tensor</li><li>“<strong>parameters</strong>“, survive across the whole session; updated as part of “Run”</li><li>should call “initializer” in a session.</li></ul><p><strong>placeholder</strong></p><ul><li>“inputs” of a machine learning problem</li><li>feed_dict of “Run”</li></ul><p><strong>Graph</strong></p><ul><li>represented the whole computation as a dataflow graph</li><li>node: Operation objects(add, multiply, etc.)</li><li>edge:  tensor</li></ul><p><strong>Session</strong>: </p><ul><li>used to enable Client to interact with TF sys, manage the “Graph” computation</li><li>“Extend” method: augment the graph managed by the session</li><li>“Run” method:  fetch names to be computed; feed tensors as input.</li><li>run the whole graph or a few distinct subgraphs once</li></ul><p><strong>角色分工</strong></p><ul><li><strong>Client</strong>: the user side with TF codes， use Session to interact with “master”</li><li><strong>Master</strong>: TF system role for scheduling</li><li><strong>Worker</strong>: managed by master, responsible for managing “Devices” and run the actual “Tasks”.</li><li><strong>Job and task:</strong> 实际的一次任务执行称为一个job，job由多个task(分布式环境下)构成，由workder实际执行；单机时，client, master, worker 在一个os process环境下 。</li><li><strong>Devices:</strong> 实际的运算实体（CPU， GPU等）<ul><li>device type and name</li><li>device name example:  “ /job:localhost/device:cpu:0”</li><li>device name example:  “/job:worker/task:17/device:gpu:3”<br><img src="/2017/12/31/tf-tutorial/single_distribute_structure.png" alt="single_distribute_structure"></li></ul></li></ul><h3 id="Execution"><a href="#Execution" class="headerlink" title="Execution"></a>Execution</h3><h4 id="single-device-execution"><a href="#single-device-execution" class="headerlink" title="single-device execution"></a>single-device execution</h4><ul><li>依据Graph的依赖关系执行</li><li>每个node维护一个dependency counter; 当counter为0时，进入ready queue等待执行</li><li>node s 执行完毕，将所有依赖s的下游node的counter减1</li></ul><h4 id="Multi-device-execution"><a href="#Multi-device-execution" class="headerlink" title="Multi-device execution"></a>Multi-device execution</h4><p><strong>Node placement</strong></p><ul><li>核心：基于cost model进行simulation, 将node放置在合适的device上</li><li>cost model:<ul><li>input,output  tensors’ sizes</li><li>computation time</li></ul></li><li>simulation:<ul><li>使用贪心策略，依据Graph dependency，依次决定nodes的放置。</li><li>对于Node s，考虑s所有可行的devices, 依据下面两条决定：<ul><li>comunication time (if has): 可能的传输时间，如跨设备或分布式</li><li>cost model<br><strong>Cross-device comunication</strong></li></ul></li></ul></li><li>vertex-centric partiton.</li><li>在每个device上增加特殊节点：”Send”, “Receive”<ul><li>隔离：所有跨设备的通信交由Send和Receive来处理，包括同步等。</li><li>节省内存：在同一设备上多个节点依赖同一个tensor,只需要Receive管理一份，大大减少传输量和内存占用。</li></ul></li></ul><p><img src="/2017/12/31/tf-tutorial/multi_device_commu.png" alt="multi_device_commu"></p><h4 id="distributed-execution"><a href="#distributed-execution" class="headerlink" title="distributed execution"></a>distributed execution</h4><p>大部分执行机制同“Multi-device execution”</p><h4 id="Fault-Tolerance"><a href="#Fault-Tolerance" class="headerlink" title="Fault Tolerance"></a>Fault Tolerance</h4><p><strong>出错检测</strong></p><ul><li>Send, Recieve 通信报错</li><li>心跳机制检测</li></ul><p><strong>check-point 机制</strong></p><ul><li>Variable: 连接到Save node和Restore node<ul><li>每隔一定周期，Save node对variable进行持久化</li><li>恢复时，只在restart的第一次迭代时，将值赋给Variable</li></ul></li></ul><h3 id="Gradient-Computation"><a href="#Gradient-Computation" class="headerlink" title="Gradient Computation"></a>Gradient Computation</h3><p>TF提供自动的符号梯度计算</p><ul><li>[db,dW,dx] = tf.gradients(C, [b,W,x])<ul><li>extending the computation graph</li><li>backtracks from target C to source I, add “partial gradient node” to the Graph</li><li>梯度的计算不仅依赖”partial gradient nodes”,还依赖前向过程的input和output（图中灰色线），会导致大量tensor不能释放，占用存储<ul><li>更复杂的启发式规则，决定图计算顺序</li><li>recomputing tensor，而不是存储</li><li>将较长生存周期的tensor交换到cpu memory, 释放Gpu memory.<br><img src="/2017/12/31/tf-tutorial/gradient_graph.png" alt="gradient_graph"></li></ul></li></ul></li></ul><h3 id="Partial-Execution"><a href="#Partial-Execution" class="headerlink" title="Partial Execution"></a>Partial Execution</h3><p>TF支持执行subgraph, 并且支持在任意地方指定input tensor. 比如debug的时候，人为指定某个tensor的值。如图所示：<br><img src="/2017/12/31/tf-tutorial/partial_excu.png" alt="partial_excu"></p><ul><li>feed: 指定替换的Input tensor 的 name[:port]; 如图中inputs={b}</li><li>fetch: 指定观测结果的output tensor的 name[:port];如图中outputs={f:0}</li><li>执行重写后的graph，其余无关节点不执行计算</li></ul><h3 id="Parallel-Techs"><a href="#Parallel-Techs" class="headerlink" title="Parallel Techs"></a>Parallel Techs</h3><h4 id="Queue"><a href="#Queue" class="headerlink" title="Queue"></a>Queue</h4><ul><li>允许Graph的不同部分异步执行。（Ready Queue）</li><li>Enqueue, Dequeue</li><li>example: prefetch data for some nodes from disk while other nodes are computing according the Graph.</li><li>grouping</li><li>FIFO queue, shuffle queue</li></ul><h4 id="Data-Parallel-Training"><a href="#Data-Parallel-Training" class="headerlink" title="Data Parallel Training"></a>Data Parallel Training</h4><p>复制model(part of the Graph)到不同的devices，然后并行执行。</p><ul><li>SGD: mini-batch的并行执行<br><img src="/2017/12/31/tf-tutorial/data_parallel.png" alt="data_parallel"></li></ul><h4 id="Model-Parallel-Training"><a href="#Model-Parallel-Training" class="headerlink" title="Model Parallel Training"></a>Model Parallel Training</h4><p>模型的不同部分（different portions of the Graph）在不同的devcies上并行，处理同一批数据</p><ul><li>deep LSTM<br><img src="/2017/12/31/tf-tutorial/model_parallel.png" alt="model_parallel"></li></ul><h4 id="Concurrent-Steps-for-Model-Computation-Pipelining"><a href="#Concurrent-Steps-for-Model-Computation-Pipelining" class="headerlink" title="Concurrent Steps for Model Computation Pipelining"></a>Concurrent Steps for Model Computation Pipelining</h4><p>在同一个device内部进行流水线执行。</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;该文主要来自于TensorFlow白皮书，摘录了重点，以备不时之需。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h3 id=&quot;参考资料&quot;&gt;&lt;a href=&quot;#参考资料&quot; class=&quot;headerlink&quot; title=&quot;参考资料&quot;&gt;&lt;/a&gt;参考资料&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;
+      
+    
+    </summary>
+    
+      <category term="机器的理智" scheme="http://luoxc.com/categories/%E6%9C%BA%E5%99%A8%E7%9A%84%E7%90%86%E6%99%BA/"/>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>《信息简史》--信息的本质</title>
+    <link href="http://luoxc.com/2017/12/30/information-history/"/>
+    <id>http://luoxc.com/2017/12/30/information-history/</id>
+    <published>2017-12-30T15:52:27.000Z</published>
+    <updated>2017-12-30T16:24:55.000Z</updated>
+    
+    <content type="html"><![CDATA[<hr><p>　　该文主要来自于美国科普作家詹姆斯·格雷克的《信息简史》的摘要（他还写过一本畅销书《混沌：开创新科学》），观点非常深刻清晰，颇具启发性；前半部观点新奇，后半部观点深刻，深刻到我无法完全看懂，以至于看了多遍，仍没有自信以自己的语言来重构他的全部观点。不过，它可是完全勾起了我对<strong>信息论</strong>的兴趣，对香农的远见（还有书中描写的维纳的狭促）印象无比深刻，以至于屁颠地跑去找了香农信息论的原始论文阅读：《The Mathematical Theory of Communication》（通信的数学原理），看得似懂非懂意犹未尽（也可能自己的数学储备知识还不够，主要是关于马尔科夫链和随机过程的一些障碍）。另外，还发现了一本极好的书<a href="https://book.douban.com/subject/1789534/" target="_blank" rel="external">《Information Theory, Inference, and Learning Algorithms》</a>，作者是<a href="https://book.douban.com/search/David%20J.%20C.%20MacKay" target="_blank" rel="external">David J. C. MacKay</a>，只是可惜2017年被ESL缠斗太久，无暇去看。</p><p>　　另外，书中关于艾伦·图灵与香农的一段神交，蔡廷和科尔戈莫洛夫关于扩展熵的定义殊途同归，蔡廷关于随机性与熵与图灵的不可计算数的联系，哥德尔不完备性与海森堡不确定原理之间的关系，太多联想充斥在脑中。一种不经意的喜悦，夹杂着无知与渴求的感觉。</p><p>　　最后，顺便推荐这本图灵的传记<a href="https://book.douban.com/subject/10779604/" target="_blank" rel="external">图灵的秘密 : 他的生平、思想及论文解读</a>。只看了一小部分，等有空了一口气看完，再做笔记。等关于随机性、不可计算数、哥德尔不完备性、计算理论、信息论都有一定的根基了，再来改写这篇笔记，多写写自己的见解了。</p><h3 id="摘录"><a href="#摘录" class="headerlink" title="摘录"></a>摘录</h3><ul><li>而对它（信息）加以简化、精炼，并以比特度量后，人们发现信息几乎无处不在。香农的理论在信息与不确定性、信息与熵，以及信息与混沌之间架起了桥梁。</li></ul><ul><li><p>词典为文字的持久性提供了正式认定，它表明一个字词的意义来自于其他的字词。这意味着，所有的字词聚集到一起，就可以形成一种互相关联的结构，因为所有的字词都是由其它的字词来定义的。这种现象在口语文化中并不存在，因为在那里语言是不可见的。只有当印刷术以及词典使语言成为一个个凸起的字符，可以被细细查看时，人们才能逐渐认识到字词的意义是互相依存，甚至是循环定义的。这时，字词必须被当做字词来看待，不同于所代表的事物，代表的只是其它字词。</p></li><li><p>词汇是对共同经验的一种量度，而后者来源于互连通性。</p></li><li><p>威尔金斯正试图接近信息最纯粹、最一般的形式，而文字只不过是其中一个特例：因为我们必须意识到，一般说来，任何能够创造出有效的差异，可为某种感官所感知的东西，都足以作为表达思想的手段。</p></li><li><p>语言至此被视作服务于两种独立的功能，既是表达的工具，也是思维的工具。人们一般假定，其中思维在先。对于布尔来说，逻辑就是思维，是思维经过打磨和提纯的结果。</p></li><li><p>我的办公室里就有一部电话，不过更多的是用来展示。如果我想发条讯息的话，我可以使用发报机，或差一个童仆去跑腿就行了…… 人们在面对一种全新技术时通常会遭遇想象力失灵。人们对于电报已经很熟悉，但与之相关的经验却无法移用到电话这种新设备上来。</p></li><li><p>当可连通的电话数量超过了某个临界值时，其拓扑结构就发生了变化，而且这种变化来得异常迅速。社区性的电话网络出现了，其相互连通的功能由一种称为交换机的新型设备来管理。</p></li><li><p>如果把图灵机简化到只剩下一张有限的状态表以及一个有限的输入集，那么图灵机本身就可以用数来表示… 图灵给他的机器编码，就如同哥德尔给他的符号逻辑语言编码一样。如此这般，数据和指令之间区分就被消除了：说到底，它们都不过是数而已。每个可计算数，必定对应着一个机器编号。</p></li><li><p>任何用于生成公式的机械的流程，本质上都是一台图灵机。因此，任何形式体系中必然存在不可判定的命题。数学是不可判定的，其不完全性来源自不可计算性。</p></li><li><p>当数被拿来编码机器的行为时，悖论就会再次现身。这涉及不可避免的递归纠缠：被计算的实体与进行计算的实体纠缠到了一起，带来种种恶果…物理学同样新近遇到了类似的难题：海森堡不确定原理… 过去我们一直假定，在科学中，只要知道了宇宙在某一时刻的全部状态，我们就能把宇宙所有的未来状态都预测出来…但更为现代的科学却认为，当我们面对原子和电子时，我们无法知道它们的全部确切状态，因为我们所用的仪器本身就是有原子和电子构成的。</p></li><li><p>图灵和香农都在使用编码，只是图灵把指令编码成数，将十进制数编码成0和1，而香农是对基因、染色体、继电器和开关编码。他们的灵巧智慧都应用在了如何将一类事物映射到另一类事物（例如，代数函数与机器指令，逻辑运算与电路），也就是找出两类事物之间严格的对应关系上。<strong>在他们心智的武器库中，符号运算以及映射的思想占据着举足轻重的地位。</strong></p></li><li><p>在香农看来，一条讯息就像一个动力系统，它的未来走向会受到过去历史的影响。</p></li><li><p>计算一个系统（如热力学系统）所有可能组合，可以发现其中无序状态远多于有序状态… 因此，有序状态的熵低，出现概率也低。</p></li><li><p>熵就成了概率在物理学上的等价物：某一给定宏观状态的熵，就是它所对应的围观状态数目的对数。因此，热力学第二定律揭示的是，宇宙从可能性较小的（有序的）宏观状态演化为可能性较大的（无序的）宏观状态的趋势。</p></li><li><p>它（麦克斯韦的妖）能看见，热力学第二定律只是在统计意义上成立，而不是由某种物理原因所决定的。事实上，在分子水平，这条定律就会被随机地违背。而这个妖则是用具有目的性的行为替代了这种随机性。<strong>它用信息降低了熵</strong>。</p></li><li><p>神经系统本身的存在，就是依赖于能量的持续耗散。</p></li><li><p>信息不是免费的。麦克斯韦、汤姆森等人都默认知识是现成的–关于分子速度和轨迹的知识就直接摆在了这个妖的眼前。他们没有考虑到，获取这些信息是需要成本的… 信息是物理的。麦克斯韦妖则在两者之间架起了桥梁，它每处理一个粒子，就是做了一次信息与能量的转换。齐拉特发现，只要精确核算每次度量和记忆，这种转换也是可以精确计算的。</p></li><li><p>“我考虑的是，从一个集合中作出选择时会有多少信息产生– 这样一来，集合越大，产生的信息越多。而你考虑的是，集合越大，不确定性越高时，对于该情况的知识就越少，因而信息也就越少。”换句话说，H度量的是出人意料的程度。</p></li><li><p>我们都像麦克斯韦妖一样活动。生物体(organism)，顾名思义，时刻在组织(organize)…收发邮件，创作诗词，音乐，制造工具等。</p></li><li><p>讯息越有规律，就越可预测；越可预测，就越冗余；越冗余，含有的信息就越少。随机程度如何与含有多少信息其实是同一个问题。</p></li><li><p>为什么说$\pi$不是随机的呢？蔡廷给出了一个明确的回答：一个数只要是可计算的，即它能够被一个可定义的计算机程序生成，那它就不是随机的。因为，可计算性是随机性的一种度量。</p></li><li><p>柯尔莫哥洛夫描述了三种度量（信息的）途径：基于组合、基于概率，以及基于算法… 以避免考虑所有可能对象组成的系统时可能遇到的问题。这种途径关注对象本身。</p></li><li><p>当人或计算机从经验中学习时，他们是在使用归纳推理，从无规律的信息流里识别出规律来。从这个意义上说，科学定律其实就是一种数据压缩，而理论物理学家就像是一个非常聪明的编码算法。</p></li><li><p>所罗门洛夫感兴趣的是归纳推理：给定一个观察数据的序列，人们如何作出关于后续事件的最优预测？柯尔莫哥洛夫寻找的则是随机性的数学定义：通过掷硬币以相同概率生成的两个序列，说一个序列比另一个序列更随机是什么意思？而蔡廷试图借助图灵和香农的理论，找到另一条更深刻地认识哥德尔不完全性定理的途径，正如他后来所说，“将香农的信息论和图灵的可计算理论倒进调酒器里，然后用例晃动”。最终他们三人的答案都与最短程序的长度有关，与复杂性有关。</p></li><li><p>信息不是不具实体的抽象，而总是与物理载体相联系，因而也必须遵循物理定理…无论它是表现为石板上的一个刻记、打孔卡片上的一个孔洞，还是一个粒子的自旋，信息都不可能摆脱某种物理载体而独立存在… 兰道尔提出，只有不可逆的操作，才会导致熵的增加。</p><p>许多计算可以不耗费任何能量就能完成，而热量耗散也只有在擦除信息时才会发生。擦除是一种不可逆的逻辑操作… 遗忘需要功。</p></li></ul><h3 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h3><ul><li>作者简介：<a href="https://en.wikipedia.org/wiki/James_Gleick" target="_blank" rel="external">https://en.wikipedia.org/wiki/James_Gleick</a></li><li>chaos software: <a href="http://www.cs.sjsu.edu/~rucker/chaos.htm" target="_blank" rel="external">http://www.cs.sjsu.edu/~rucker/chaos.htm</a></li></ul>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;hr&gt;
+&lt;p&gt;　　该文主要来自于美国科普作家詹姆斯·格雷克的《信息简史》的摘要（他还写过一本畅销书《混沌：开创新科学》），观点非常深刻清晰，颇具启发性；前半部观点新奇，后半部观点深刻，深刻到我无法完全看懂，以至于看了多遍，仍没有自信以自己的语言来重构他的全部观点。不过，它可是完
+      
+    
+    </summary>
+    
+      <category term="逻辑的引擎" scheme="http://luoxc.com/categories/%E9%80%BB%E8%BE%91%E7%9A%84%E5%BC%95%E6%93%8E/"/>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>《影响力》摘要</title>
+    <link href="http://luoxc.com/2017/12/30/influence/"/>
+    <id>http://luoxc.com/2017/12/30/influence/</id>
+    <published>2017-12-30T15:46:43.000Z</published>
+    <updated>2017-12-30T16:47:24.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>该文来自于《影响力》一书，书有点冗长，适合速度；暂且摘录一些有用的tips。</p><h3 id="主要内容"><a href="#主要内容" class="headerlink" title="主要内容"></a>主要内容</h3><ul><li>互惠</li><li>承诺和一致</li><li>社会认同</li><li>喜好</li><li>权威</li><li>短缺</li></ul><h3 id="只言片语"><a href="#只言片语" class="headerlink" title="只言片语"></a>只言片语</h3><ul><li>我们容忍这种美中不足（指根据某些“启动特征”做出的自动反应），多半也因为我们没有更好的办法。如果不借助这些经验和公式，我们只会永远裹足不前– 站在原地分类、评价、比较–而可以让我们采取行动的时间却在毫不留情的逝去。<strong>当我们的生活空间变得越来越充满了刺激和复杂多变时，我们也必然越来越频繁地依赖捷径来应付这一切</strong>。</li><li>当人们有这种愿望、也有这个能力去对有关的信息进行分析时，他们更可能对这些信息做出有控制的反应；否则的话，更可能采取“咔嗒，哔”的反应方式…当人们觉得事不关己时，他们完全依赖“专家的话一定是对的”这一规则，说服他们的不是演讲本身，而是演讲者在教育领域的造诣和地位；而当人们会受到这一主张影响时，他们的态度就不一样了。</li><li><strong>对比原理</strong>影响我们对先后接触到的两件东西的差别的判断。比如中介让你先看很差但是价钱又稍高的房子。<h4 id="互惠原理"><a href="#互惠原理" class="headerlink" title="互惠原理"></a>互惠原理</h4></li><li>由于<strong>互惠原理</strong>的影响力，我们感到自己有义务在将来回报我们收到的恩惠、礼物、邀请等等。对这一类东西的接受往往与偿还的义务紧紧联系在一起… 我们人类社会发展成今天的样子，是因为我们的祖先学会了在一个以名誉作担保的义务偿还网络中分享他们的食物和技能。</li><li>著名法国人类学家马塞尔·毛斯在描述人类文明的送礼过程以及与此有关的社会压力时说过这样的话：<strong>给予是一种义务，接受是一种义务，偿还也是一种义务</strong>。</li><li>互惠原理的例子：埃塞俄比亚给墨西哥的捐款、商家的试用试吃服务、调查问卷附带的小礼品、甚至街边硬塞给你的礼物等。</li><li>一般来说，整个社会对不遵守互惠原理的人的确有一种发自内心的厌恶。为了避免被贴上像忘恩负义这一类的标签，即使是不公平的交换我们有时候也是愿意接受的。</li><li>互惠原理导致的<strong>拒绝–退让</strong>：如果他人对我们做出了让步，我们也有义务做出让步。因为妥协也可以是一个互惠的过程。</li><li>如果他人最初的提议是我们想要的，我们就接受它，但我们接受的只是这个提议本身，与他人的角色无关..<strong>.互惠原理指出恩惠必须用恩惠来报答，但并没有说诡计也必须用恩惠来回报</strong>。</li><li>那些反向破坏互惠原理的人–<strong>只给与却不给人回报的机会– 也会遭致人们的厌恶</strong>。<h4 id="承诺和保持一致"><a href="#承诺和保持一致" class="headerlink" title="承诺和保持一致"></a>承诺和保持一致</h4></li><li>在很多情况下保持一致都是一种很有益、很得体的行为；自相矛盾被认为是一种不良的品性。若果一个人的信仰、言辞、行为相互矛盾，这个人就会被看做优柔寡断、头脑混乱、两面三刀。而另一方面，高度的一致则是和坚强的个性和优越的智力联系在一起的，是逻辑、理性、稳定和诚实的核心。</li><li>一旦我们对一件事情做出了决定，固执地坚持这个决定就成了一种非常难得的奢侈，因为这意味着我们再也不用为这件事操心了。</li><li>这种从小的请求开始最终达到对大请求的依从的策略，叫做“<strong>入门策略</strong>”：一旦他同意了某个请求，他的态度就变了，会尽可能的去保持承诺和一致。</li><li><strong>一个承诺必须是积极的、公开的、经过努力才做出的、而且是人们自由选择的结果</strong>…做出一个承诺所需付出的努力越多，这个承诺对许诺者的影响就越大,要让这些人从内心深处对这个承诺负起责任来。<h4 id="社会认同原理"><a href="#社会认同原理" class="headerlink" title="社会认同原理"></a>社会认同原理</h4></li><li><strong>不确定性</strong>：当人们对自己的处境不是很有把握时，更有可能根据他人的行为来决定自己应该怎么办。<strong>相似性</strong>：与我们类似的人对我们最有影响力。</li><li>现象：当单独一个人看到门底冒烟时，75%的人报了警。然而同样的冒烟事件被一个三人小组看见时，报警的概率则降到了38%。但是，报警次数最少的时候还是当三人小组中有两人事先被告知要表现得若无其事的时候，这时候报警的概率降到了10%</li><li><strong>多元无知效应</strong>在陌生人之间表现得最为显著：当旁观者不能肯定他们的目击事件是否紧急，尤其是这群人互不相识时，不施以援手的可能性最大。</li><li>（<strong>当出现紧急事件时，）从人群中仅仅挑出一个人来，注视着他，指着他，直接对他说：“你，穿蓝夹克的先生，我需要帮助，请叫一辆救护车来。</strong>”</li><li><strong>维特效应</strong>：大量报到自杀事件，会导致自杀事件发生的概率。</li></ul><h4 id="权威"><a href="#权威" class="headerlink" title="权威"></a>权威</h4><ul><li>具有独立思考能力的成年人也会为了服从权威的命令而做出一些完全丧失理智的事情。<strong>在权威的强大压力面前，个人的抵抗是十分渺小的</strong>。</li><li>来自权威的信息在很多情况下都为我们提供了一条行动的捷径。如老师和父母。一方面是他们拥有更多的智慧，另一方面也是由于他们就是决定赏罚的人。</li><li>权威影响例子：电刑实验、R-ear眼药水</li><li>（抵抗权威影响）最基本的方法是对权威保持高度的警觉。有了这种警觉，同时也意识到权威是多么容易造假，我们自然会采取一种比较谨慎的态度。</li><li>问自己两个问题。<strong>第一，这个权威是不是真正的专家？第二，这个权威会不会对我们说真话</strong>？</li></ul><h4 id="短缺"><a href="#短缺" class="headerlink" title="短缺"></a>短缺</h4><ul><li>去爱一样东西的方法之一就是意识到它可能会失去。</li><li>稀缺的例子：有瑕疵的邮票、错版的硬币、被封禁的信息等。</li><li>具有讽刺意义的是，对这种人–如一些可疑的政治团体–来说，为了让人们接受他们的观点，最有效的策略不是去公开宣扬这些观点，而是故意让这些观点遭受官方的封杀，然后再把被封杀的消息公之于众。</li><li><strong>先拥有后失去的短缺威力更大</strong>。当经济条件和社会条件改善之后又发生短暂而急剧的倒退时，就是我们最有可能看到革命和动乱的时候。因此，在一个社会中，最容易揭竿而起的，并不是那些传统上受压迫最深的人，因为对他们来说，自己所受的压迫可能已经成了自然秩序的一部分。相反，革命者更可能是那些至少品尝过比较好的生活滋味的人。当他们亲身经历过并寄予厚望的经济上的和社会上的进步突然变得可望而不可及时，他们便会对这种进步产生比以前任何时候都更强烈的欲望，甚至不惜以暴力来保卫。</li></ul><h4 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h4><ul><li>他们（依从业者）真正的罪状，也是我们不能容忍的一点，是他们赚钱的方法威胁到了我们的捷径的可靠性。<strong>我们必须借助稳妥可靠的捷径和经验来应付令人眼花缭乱的现代生活，这不是一种奢侈，而是一种必要</strong>。而且随着生活步调的加快，这些经验和捷径会显得越来越重要。因此，当我们看到有人为了自己的私利而践踏这些规则时，应该义愤填膺地对他们进行反击和声讨。</li></ul>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;该文来自于《影响力》一书，书有点冗长，适合速度；暂且摘录一些有用的tips。&lt;/p&gt;
+&lt;h3 id=&quot;主要内容&quot;&gt;&lt;a href=&quot;#主要内容&quot; class=&quot;headerlink&quot; title=&quot;主要内容&quot;&gt;&lt;/a&gt;主要内容&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;互惠&lt;/li&gt;
+&lt;l
+      
+    
+    </summary>
+    
+      <category term="人文的意义" scheme="http://luoxc.com/categories/%E4%BA%BA%E6%96%87%E7%9A%84%E6%84%8F%E4%B9%89/"/>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>好玩的公式系列1：方差分解的联想</title>
+    <link href="http://luoxc.com/2017/09/17/funny-equation-1-variance-decomposition/"/>
+    <id>http://luoxc.com/2017/09/17/funny-equation-1-variance-decomposition/</id>
+    <published>2017-09-17T05:51:46.000Z</published>
+    <updated>2017-12-30T16:43:28.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>在“A FIRST COURSE IN PROBABILITY”里，偶然看到如下的条件方差分解公式：<br>$$Var(X) = Var(E[X|Z])+ E_X[Var(X|Z)]$$<br>于是我换了变量名，一下子熟悉起来：<br><strong>$$Var(Y) = Var(E_Y[Y|X])+ E_X[Var(Y|X)] $$</strong></p><ul><li>在机器学习中，X看做特征，Y为目标；在统计里，X看做自变量，Y看做因变量</li><li>它表达了理想情况下，采用<strong>MSE准则</strong>，预测函数$Y=g(X)=E_Y[Y|X]$时的方差组成：<ul><li>可以解读为: $target_var =  captured_var + MSE$<ul><li>$ Var(E_Y[Y|X])$: $captured_var$, 表征预测模型捕获的方差。</li><li>$ E_X[Var(Y|X)] $：表征预测残差，此时的MSE只有噪声，没有模型偏差。</li><li>$R^2 = \frac{Var(E_Y[Y|X])}{Var(Y)} $: 统计学里称之为<strong>“决定系数”</strong>。$R^2$越接近1，则表明$Y$的方差几乎都被$g(X)$捕获，预测残差小，预测的效果好；也说明数据质量好，噪音小！在这种理想情况下($g(X) = E_Y[Y|X]$)，可以用$R^2$评估数据质量。</li></ul></li></ul></li><li><p>事实上，往往预测函数$Y=g(X)\  \neq E_Y[Y|X]$：</p><ul><li>预测函数不能有效捕获Y的方差，MSE增大：$captured_var &lt; Var(E_Y[Y|X])$，$MSE &gt; E_X[Var(Y|X)]$,<ul><li>MSE的误差来源包含两部分：固有噪声$E_X[Var(Y|X)]$（机器学习中称为<strong>方差variance</strong>）和模型误差（机器学习中称为<strong>偏差bias</strong>），具体见下文证明。</li><li>若$g(X)$太差，将导致模型偏差部分非常大！机器学习中称之为“<strong>欠拟合</strong>”，下面是可能的原因：<ul><li>数据量过小，不能有效的估计出$E[Y|X]$</li><li>特征太差，没有表征力（极端情况下X和Y独立，见下文分析）</li><li>假设空间容量不够大，没有$E_X[Y|X]$及其有效近似。（如采用线性拟合非线性数据）<ul><li>假设空间足够大，但是没有有效的搜索策略。（如nerual network高度非凸的搜索空间）</li></ul></li></ul></li><li>要防止在训练集上过度拟合$g(X)$：<ul><li>机器学习中称之为<strong>“过拟合”</strong>：在训练集上近乎完美的拟合数据，但在测试集上表现糟糕, 因为：</li><li>现实数据集往往是有限的、有噪声的<ul><li>数据有限：极有限的数据可能难以反应真实数据分布， $g(X)$可能会拟合出过于复杂但不真实的形状，它可能会造成方差和偏差都增大；</li><li>数据噪声：噪声往往来源于固有噪声、数据收集噪声(如生产系统上的各种错误导致label不正确)等。这里只考虑固有噪声，即Y并不是X的确定性函数（如MSE假设$y = f(x) + \delta, \ \delta \sim N(0, \sigma)$）。通常，完美拟合训练集，$g(X)$会拟合噪声的波动，导致函数过于复杂，极小的$\Delta x$，会带来极大的$\Delta g(x)$；即我们通常所说的“方差过大，导致过拟合”</li><li>一般而言，我们在减小偏差(解决欠拟合)时，要防范方差爆炸（防范过拟合），可以采取正则化,drop out，bagging等一系列措施。</li></ul></li></ul></li></ul></li></ul></li><li><p>当$X$与$Y$独立时（即特征X太烂，无法表征目标Y）: </p><ul><li>公式右边退化为$Var(Y) + 0$<ul><li>预测函数将完全无法捕获$Y$的方差</li><li>MSE中的偏差部分将增大！（特征工程很重要）</li></ul></li></ul></li><li><p>如何更好的使$g(X)$逼近$E[Y|X]$呢？</p><ul><li>对于条件期望$E[Y|X]$, 若对于每一个可能的$X$, 都有足够多样本来估计Y的条件期望；之后的预测，就只需查表。显然，不符合现实。<ul><li>对每个点$X$我们无法得到足够样本，但是可以将X的空间分段，进行分段拟合；</li><li>分段拟合为防止过拟合，可以限定假设空间为3次自然样条。</li><li>KNN采用$g(x) = Avg(y_i\ |\ x_i \in N_k(x))$来近似$E[Y|X=x]$</li></ul></li></ul></li><li><p>在抽样理论中：可尝试使用随机变量$E_Y[Y|X]$ 代替$Y$来模拟$E[Y]$,减小抽样方差， 因为：</p><ul><li>$E_X[E_Y[Y|X]] = E[Y]$<ul><li>$Var(E_Y[Y|X]) \le Var(Y)$</li></ul></li></ul></li></ul><p><strong>MSE预测：</strong>对于MSE损失函数$L = E[Y-g(X)]^2$的解为：$g(X) = E[Y|X]$<br><strong>引理：</strong> $$\forall g(X), E[(Y-g(X))^2 | X] = \<br> E[(Y- E[Y|X])^2 |X] + E[(E(Y|X) - g(X))^2|X] \<br> \ge  E[(Y- E[Y|X])^2 |X]$$</p><ul><li>$ E[(Y- E[Y|X])^2 |X] $：数据分布固有噪声,如高斯白噪声等。称之为方差variance。</li><li>$E[(E(Y|X) - g(X))^2|X] $:  模型误差部分，称之为偏差bias。如真实函数为二次，却用线性回归拟合。模型误差受限于假设空间的容量，也受限于在假设空间的搜索过程（可能是局部最小值，并不能得到最优的$E(Y|X)$）</li></ul>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;在“A FIRST COURSE IN PROBABILITY”里，偶然看到如下的条件方差分解公式：&lt;br&gt;$$Var(X) = Var(E[X|Z])+ E_X[Var(X|Z)]$$&lt;br&gt;于是我换了变量名，一下子熟悉起来：&lt;br&gt;&lt;strong&gt;$$Var(Y) = 
+      
+    
+    </summary>
+    
+      <category term="机器的理智" scheme="http://luoxc.com/categories/%E6%9C%BA%E5%99%A8%E7%9A%84%E7%90%86%E6%99%BA/"/>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>哥德尔不完全性</title>
+    <link href="http://luoxc.com/2017/09/17/godel-proof/"/>
+    <id>http://luoxc.com/2017/09/17/godel-proof/</id>
+    <published>2017-09-17T02:28:30.000Z</published>
+    <updated>2017-12-30T15:13:54.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>　　在几何学的历史上，有一段传奇公案：欧几里得第五公设（平行公理）的研究。<br>　　“过直线外一点，有且仅有一条直线与已知直线平行” – <strong>欧氏几何</strong><br>　　不同于其它四条公理，平行公理并非那么显然为真。大量数学家涌入该领域，希望：要么证明平行公理是从其它公理推导出来的定理，要么证明平行公理是不可或缺的。<br>　　可是，这两条途径都失败了。少数天才数学家意识到，平行公理既无法证明是定理，也并非不可或缺。非欧几何就此诞生。罗巴切夫斯基提出“罗氏几何”，黎曼提出“黎曼几何”（后用于解释广义相对论）。<br>　　“过直线外一点，至少可以做两条直线与已知直线平行” – <strong>罗氏几何</strong><br>　　“过直线外一点，没有直线与已知直线平行” – <strong>黎曼几何</strong><br>　　其时，意识到非欧几何的，还有更早的匈牙利21岁的鲍耶·雅诺什，以及人称数学王子和老狐狸的高斯。高斯可能是最早意识到非欧几何的存在，只是太违反现实直觉，而迟迟没有公布相关研究成果。“点”，“线”，“平面”的定义，已经在我们脑海里根深蒂固。但我们如果抛开成见，在球面上理解“黎曼几何”，将“点”理解为球面上一条直径的两个端点，一切都将是相容的。“点”如何定义无关紧要，重要的是据此而来的推理的相容性。<br>　　对于公理系统来说，公理是否自明为真无关紧要，重要的是推导出来的定理的相容性。对于形式化公理系统来说，有两个核心问题，“一致性”，“完备性”。<br>　　“一致性是指，从公理出发，不会推导出命题P和~P同时为真”<br>　　“完备性是指，该公理系统中真命题，都能够从公理系统推导出”<br>　　形式系统已经将现实意义残忍剥离，而“一致性”和“完备性”就成了数学家最朴素的愿望，尤其是“一致性”。罗素和怀特海则在鸿篇巨著《数学原理》中将数学系统抽象成纯逻辑系统；大卫·希尔伯特提出了“一致性”的绝对证明原则。<br>　　可是，希尔伯特和罗素的愿望，被当时的青年才俊无需担心买房的哥德尔无情击破。1931年，维也纳大学时年25岁的库尔特·哥德尔，发表“论《数学原理》及相关系统的形式不可判定命题”，成为逻辑和数学史上的一座里程碑。哥德尔采用了类似于“说谎者”悖论的论证逻辑。（或者“理发师悖论”。具体什么悖论，结果都会殊途同归，只要这些悖论谈论他们自身。有时间会整理各种有意思的悖论和思想实验）<br>　　“我说的这句话是假的。” 这个命题是不可判定的。<br>　　哥德尔给了数学家、逻辑学家、哲学家几乎是致命的一击，以至于伟大的语言哲学家维特根斯坦终生拒绝相信哥德尔的结论（就是那个博士答辩，让导师罗素、摩尔、魏斯曼不敢开口提问的天才。他的传记参见《维特根斯坦传：天才之为责任》）。<br>　　哥德尔不完备定理的证明核心有两点：</p><ul><li>哥德尔映射（同构）：借助哥德尔配数法，将形式逻辑系统内的合法公式映射为整数（哥德尔数）；将形式系统的元命题映射为整数之间的算术性质！借助于算术的桥梁，谈论该系统的某个元命题，其实就是该系统内的某个公式。形式系统有了忠实谈论自身的能力（自指的魔力，带来悖论的魔力）。</li><li>构建元命题的公式G：“G在本形式系统不可证”</li></ul><p>最终，哥德尔得到了如下的不完备定理：</p><ul><li><strong>哥德尔第一不完备性定理</strong>：任何包含算术系统的形式系统S（包括下文的PM）若是一致的，则是不完全的。<br>  它说明，对于形式公理系统，“一致性”和“完备性”不可兼得。“一致性”是一个公理系统能用于解释现实的最基本要求，在不一致的系统里，任何合法命题都是定理，这样的公理系统没有意义。系统的“不完备性”说明，总有一些“真理”，根据我们的公理系统，是不可判定的－－也许，“哥德巴赫猜想”就是我们的数论系统无法判定的“真命题”。</li><li><strong>哥德尔第二不完备性定理</strong>： 如果形式系统S包含算术系统，当S一致时，S的一致性无法在S内部证明。<br>  更令人沮丧的是，即使我们放弃了“完备性”，“一致性”也无法仅在该公理系统内得到证明。通俗的说，我们无法使用算术系统的武器来证明算术系统的一致性。我们只能求助于算术系统之外的“元数学证明”。可问题是，我们将S纳入更强的形式系统S’， S’还是会逃不脱这两个不完备性定理。鱼和熊掌，不可兼得；放弃了熊掌，然而我们并不能证明得到的鱼就一定是鱼… </li></ul><p>整个证明的轮廓参照《哥德尔证明》简述如下：</p><h3 id="一致性问题"><a href="#一致性问题" class="headerlink" title="一致性问题"></a>一致性问题</h3><p><strong>公理化运动：</strong>（如欧几里得第五公设） 从事纯数学研究的适当方法，就是从假设的公理前提推到出定理，而这些公理是否自明为真则无关紧要。</p><ul><li><strong>抽象</strong>：原则上数学命题可以表达任何东西；</li><li><strong>形式化：</strong>数学证明的有效性只基于命题结构，与具体事物特性无关。</li><li><p><strong>一致性问题：</strong> 一组公理是否是内部相容的，是否能确保不会推导出矛盾的定理。</p><ul><li>基本思想：为抽象系统找合理的“模型”或“解释”，使每一条公设为真，若该”模型“是一直的，则该抽象系统是一致的。</li><li>存在的问题：将一致性的证明转嫁到”模型”上<ul><li>若有多个相容的解释呢？即公设不完备的时候。如文中“三角形公理系统”中去掉公设2，则所有不少于3个点完全图都是一个解释；那么有些命题将是无法判定的？比如元素个数相关的命题。</li><li>平面椭圆几何的一致性：平面-&gt;欧几里得球面；线-&gt; 大圆；点-&gt; 一对对顶点。</li><li>几何公设代数化：利用笛卡尔坐标，将集合关系转化成代数关系。</li></ul></li></ul></li><li><p><strong>完备性问题：</strong> 对一个形式化系统中所有为真的公式，都能从该系统的公理中推理出来。</p></li></ul><h3 id="一致性的绝对证明"><a href="#一致性的绝对证明" class="headerlink" title="一致性的绝对证明"></a>一致性的绝对证明</h3><p><strong>元数学：</strong> 针对演绎统（形式系统）的命题</p><ul><li><strong>元数学命题：形式系统x是一致的</strong>。<ul><li>演绎系统形式化；只按规则演绎。形式演算与“解释”分离。</li><li>在证明一致性过程中，不能涉及到公式的无限数量的结构性质，也不能涉及到对公式的无限个操作运算。</li></ul></li></ul><h3 id="一致性绝对证明的例子"><a href="#一致性绝对证明的例子" class="headerlink" title="一致性绝对证明的例子"></a>一致性绝对证明的例子</h3><p>形式化的四步骤(以一个简单形式系统举例)：</p><ol><li>符号集（词汇）<ul><li>命题变量： p, q, r等变量等，可用命题带入</li><li>常量符号：<ul><li>命题联结符：~ $\lor$  $\supset$ $\cdot$</li><li>标点符号：(  )</li></ul></li></ul></li><li>公式：合法的形式字符串（语法）<ul><li>命题变量是公式</li><li>若S是公式，使用命题联结符的组合也是公式。</li></ul></li><li>演绎规则<ul><li>替换规则：将命题变量替换为其它公式得到一个新的公式。</li><li>分离规则：若$S_1, S_1 \supset S_2, 则 S_2$</li></ul></li><li>公理<ul><li>$(p \lor p ) \supset p$</li><li>$p \supset (p \lor q)$</li><li>$(p \lor q) \supset (q \lor p)$</li><li>$(p \supset q) \supset ((r \lor p) \supset (r \lor q))$</li></ul></li></ol><p><strong>定理：</strong>能从公理根据演绎规则得到的公式，称之为定理。<br><strong>一致性</strong>：公式$S$和公式$～S$无法同时成立，否则根据定理$p \supset (～p \supset q)$可以得到$q$,即任何公式都是定理；也就是说，<strong>只要证明至少一个公式不是定理，那么该系统就是一致的</strong>。</p><p><strong>一致性证明过程：</strong> “重言”是四个公理都具备的性质，且具有遗传性，即所有定理都会有“重言”这一性质，但公式”$p \lor q$”不是重言的，因此不是定理，即说明上述形式系统时一致的。</p><h3 id="哥德尔证明"><a href="#哥德尔证明" class="headerlink" title="哥德尔证明"></a>哥德尔证明</h3><h4 id="1-哥德尔配数法"><a href="#1-哥德尔配数法" class="headerlink" title="1. 哥德尔配数法"></a>1. 哥德尔配数法</h4><ul><li>12个常量符号：1 ~ 12</li><li>三种变量：<ul><li>数字变量：大于12的不同素数</li><li>命题变量：大于12的不同素数的平方</li><li>谓词变量：大于12的不同素数的立方</li></ul></li><li>公式：将公式字符串中的字符对应的哥德尔数，当做从2依次开始的素数的指数，这些因子的乘积作为该公式的哥德尔数</li><li>公式序列：同上述公式处理方法，指数改成公式的哥德尔数。</li></ul><p>对于任意的哥德尔数，都能按照上述法则还原成相应的常量、变量、公式或公式序列。<br><strong>在PM系统中，严格来讲，公式没有“真”或”假”的概念，只有“是否是定理”的提法</strong>（即能否从公理推导而来），“真”或“假”是对应某些形如“ss0 = ss0”的公式的<strong>算术解释</strong>；在不严格的情况下，说公式为“真”，是指它是定理。而对于大量非公式的字符串 如”ss0+ss0”，它不是公式，更不可是定理，自然也没有真假之分的。</p><p><strong>哥德尔映射引理：</strong> </p><ul><li>对于PM定理组成的无穷类，其中每一条定理，如果按照通常的算术含义加以解释，都表示一个算术真理</li><li>对于算术真理的无穷类（<strong>原始递归算术真理</strong>），其中每一个真理转换成形式公式，就得到PM中的一条定理</li><li>PM能忠实的谈论自身：有关PM的元数学真命题映照为PM的定理。</li></ul><p><strong>原始递归（primitive recursive）：</strong></p><ul><li>使用复合和递归作为中心运算来定义。</li><li>总是停机的图灵机计算。</li><li>公理：常函数、后继函数、投影函数是原始递归的。<br>参见维基百科“原始递归函数”</li></ul><h4 id="2-元数学的算术化"><a href="#2-元数学的算术化" class="headerlink" title="2. 元数学的算术化"></a>2. 元数学的算术化</h4><p>一组符号串在排列上的结构性质，可以通过探寻大整数的素因子性质来表述。即<strong>元数学算术化</strong></p><ul><li>$dem(x, z)$：它对应的元命题是，哥德尔数x的公式序列是哥德尔数z的公式在PM中的证明，它是<strong>整数x和z的原始递归关系</strong>。</li><li>$Dem(x,z)$:表示$dem(x,z)$在PM中的<strong>形式符号公式</strong>。根据哥德尔引理，若$dem(x,z)$为真，则$Dem(x,z)$是PM中的定理。</li><li>$sub(x, 17, x)$: 它对应的元命题是，将一个哥德尔数为x的公式中，凡是变量为$y(17)$的地方用$x$对应的形式符号代替而得到的新公式的哥德尔数。$sub(\cdot)$是<strong>整数x和17的一个原始递归函数</strong>。</li><li>$Sub(x, 17, x)$: 表示$sub(x, 17, x)$在PM中对应的<strong>形式符号串</strong>。</li></ul><h4 id="3-哥德尔论证的核心"><a href="#3-哥德尔论证的核心" class="headerlink" title="3. 哥德尔论证的核心"></a>3. 哥德尔论证的核心</h4><p><strong>论证步骤：</strong></p><ul><li><p>构造PM中的公式G，对应元命题：使用PM的规则，公式G不可证。</p><ul><li>公式$\sim (\exists x)\ Dem(x, Sub(y, 17, y)) $的哥德尔数是n, 元命题：哥德尔数为$sub(y, 17, y)$的公式不可证明</li><li>公式$G$ 定义为$\sim (\exists x)\ Dem(x, Sub(n, 17, n)) $的哥德尔g，则$g = sub(n, 17, n)$.</li></ul></li><li><p>G是可证明的，当且仅当~G是可证明的。若PM是一致的，则G和~G都形式不可证，即G是一个不可判定的公式</p></li><li><p>G形式不可证明，却是真的，因此<strong>PM本质上是不完备的</strong>。</p><ul><li>当PM不一致时，从元数学论证的角度，G陈述的是真理：G在PM中不存在证明</li></ul></li><li><p>元命题“若PM是一致的（公式A），则公式G是不可证的”</p><ul><li>公式A: $(\exists y) \sim \ (\exists x)\  Dem(x, y) $ 元命题：PM是不一致的。</li><li>公式G: $\sim (\exists x)\ Dem(x, Sub(n, 17, n)) $ 元命题：G是不可证的</li><li>公式“$A \supset G$”在PM中是可证的。它的元命题正如题干所述。</li></ul></li><li>当PM一致时，公式A在PM中是形式不可证的，否则G可证。因此，<strong>PM的一致性是无法使用能映照到PM内部的逻辑推理实现的</strong>。</li></ul><h3 id="八、结论性思考"><a href="#八、结论性思考" class="headerlink" title="八、结论性思考"></a>八、结论性思考</h3><ul><li>创造性思想将永远体现在数学中，创造性将永远是必需的。</li><li>人的思想从根本上不是一种逻辑引擎，而是一种模拟引擎，一种学习引擎，一种猜测引擎，一种审美驱动的引擎，自我校正的引擎。</li><li>我们不应为此感到沮丧，而应把握住这个对创造性理性在此赞赏的机会。</li><li>每一次数学危机，都是对人类认知无比艰巨的挑战，但每一次都引导了人类智力的大爆发。从负数的引进，从无理数的发现，从欧几里得第五公设的危机，从根式可解性，从古典三大尺规作图难题，从无穷小困窘，从逻辑基础的“理发师悖论”… 每一次危机和挑战，吸引了无数青年才俊、顶尖人类智力的扎堆投入，也正因为如此，也才有了度过每一次危机之后的人类认知的巨大爆发… 就像寒武纪生物种群大爆发一样…诞生了那么多耀眼的青年才俊…于是我们有了负数、无理数、虚数、群论、微积分、集合论…</li></ul><h3 id="相关信息"><a href="#相关信息" class="headerlink" title="相关信息"></a>相关信息</h3><ul><li>《哥德尔证明》</li><li>《GEB》</li><li>《信息简史》</li><li>《通信的数学原理》</li><li>《混沌，开创新科学》</li><li>《失控》</li><li>《逻辑的引擎》</li><li>《人工智能哲学》</li><li>《艾伦·图灵传》</li><li>莱布尼茨 – 布尔– 巴贝奇 – 邱奇– 图灵– 香农– 哥德尔– 蔡廷– 所罗门洛夫–冯·诺依曼– 科尔戈莫洛夫</li><li>模式–随机性–信息– 复杂性–逻辑深度–可计算数–混沌</li></ul>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;　　在几何学的历史上，有一段传奇公案：欧几里得第五公设（平行公理）的研究。&lt;br&gt;　　“过直线外一点，有且仅有一条直线与已知直线平行” – &lt;strong&gt;欧氏几何&lt;/strong&gt;&lt;br&gt;　　不同于其它四条公理，平行公理并非那么显然为真。大量数学家涌入该领域，希望：要么证
+      
+    
+    </summary>
+    
+      <category term="逻辑的引擎" scheme="http://luoxc.com/categories/%E9%80%BB%E8%BE%91%E7%9A%84%E5%BC%95%E6%93%8E/"/>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>贝叶斯学习</title>
+    <link href="http://luoxc.com/2017/04/05/ml-ch6-mitchell/"/>
+    <id>http://luoxc.com/2017/04/05/ml-ch6-mitchell/</id>
+    <published>2017-04-04T16:01:39.000Z</published>
+    <updated>2017-12-30T16:47:59.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>注：笔记来自于CMU Tom M. Mitchell的《machine learning》，持续更新笔记，会不断加入自己觉得有联系的知识。</p><hr><h3 id="贝叶斯法则"><a href="#贝叶斯法则" class="headerlink" title="贝叶斯法则"></a>贝叶斯法则</h3><p>$D$是给定训练数据，$h \in H$是假设空间中的一个假设，$P(h)$是先验概率，则后验概率如下：<br>$$P(h | D) = \frac{P(h)\cdot P(D|h)}{P(D)} $$</p><p><strong>极大后验假设MAP</strong><br>$$h<em>{MAP} = argmax</em>{h \in H} P(h|D)  =  argmax_{h \in H} P(h)\cdot P(D|h)$$</p><p><strong>极大似然假设ML</strong><br>$$h<em>{ML} = argmax</em>{h \in H} P(D|h)$$</p><p><strong>贝叶斯最优分类器</strong><br>$v<em>j \in V$表示分类集合的一个类别，则贝叶斯最优分类器定义如下：<br>$$argmax</em>{v<em>j \in V} \sum</em>{h_i \in H}P(v_j | h_i)P(h_i | D)$$</p><p><strong>朴素贝叶斯分类器</strong><br>基于假设：给定目标值时，属性值之间相互条件独立,此时朴素贝叶斯等价于MAP分类<br>$$v<em>{NB} = argmax</em>{v_j \in V} P(v_j | a_1, a_2…a<em>n) =  argmax</em>{v_j \in V}P(a_1, a_2… a_n | v_j)P(v<em>j)$$<br>由独立性：<br>$$v</em>{NB} = argmax_{v_j \in V} P(v<em>j) \prod</em>{i}P(a_i | v_j)$$</p><p>当$P(a_i|v_j) = \frac{n_c}{n}$非常小，如0.05,而样本数量为n = 5时，$n_c$最可能的值为0， 此时：</p><ul><li>就产生偏低的概率估计；</li><li>当查询包含该项时，会被0 dominate</li></ul><p>因此，常采用下面的<strong>平滑方法</strong>, m为等效样本大小，p表示该属性值的先验概率，默认是$\frac{1}{k}$（k为该属性值的取值个数）<br>$$\frac{n_c + mp}{n + m}$$</p><h3 id="Gibbs-算法"><a href="#Gibbs-算法" class="headerlink" title="Gibbs 算法"></a>Gibbs 算法</h3><p>贝叶斯最优分类器分类时需遍历所有假设，开销过大，采用Gibbs算法：</p><ul><li>按照H上的后验概率，从H中选择h</li><li>利用h来预言下一实例x的分类</li></ul><h3 id="极大似然假设-ML"><a href="#极大似然假设-ML" class="headerlink" title="极大似然假设(ML)"></a>极大似然假设(ML)</h3><p>当先验概率相等时，MAP假设等价于ML假设</p><p><strong>最小平方误差假设</strong><br>当满足下面条件时，最小误差平方假设等价于极大似然假设</p><ul><li>训练样本独立</li><li>样本的目标值 $d_i = f(x_i) + \epsilon_i$, 其中噪声$\epsilon_i \sim N(0, \sigma)$独立同分布</li><li>只考虑目标值的噪声，但是假定属性值没有噪声</li></ul><p><strong>预测概率分布的假设</strong></p><p>交叉熵最小化的假设等价于极大似然的前提：</p><ul><li>目标的布尔值为输入实例的概率函数</li></ul><p>我们需要学习$P(d=1|x)$, 假设训练样本$(x_i, d<em>i), i = 1,2…m$相互独立<br>$$P(D | h) = \prod</em>{i=1}^{m}P(x_i, d<em>i | h) = \prod</em>{i=1}^{m}P(d_i|h, x_i)P(x_i)$$<br>$$P(d_i|h, x_i) = h(x_i)^{d_i}(1-h(x_i))^{1-d<em>i}$$<br>$$h</em>{ML} =argmax<em>{h \in H} \prod</em>{i=1}^{m}h(x_i)^{d_i}(1-h(x_i))^{1-d_i}P(x_i)$$<br>取对数，并去掉最后无关的$In P(x<em>i)$:<br>$$h</em>{ML} =  argmax<em>{h \in H}  \sum</em>{i=1}^{m}d_i lnh(x_i) + (1-d_i)ln(1-h(x<em>i))$$<br>$$h</em>{ML} =  argmin<em>{h \in H}  - \sum</em>{i=1}^{m}d_i lnh(x_i) + (1-d_i)ln(1-h(x_i))$$<br>即：<strong>最小化交叉熵</strong></p><ul><li>极大似然准则(ML)，等价于最小化实例数据分布和模型生成分布之间的KL距离：$KL(P<em>{data} || P</em>{model})$</li><li>借助GAN的框架（主要是f-GAN的思想），我们可以提出不同于ML的准则，即最小化不同于KL距离的其它概率距离度量，比如$JS(P<em>{data} || P</em>{model})$(参见origin GAN, f-GAN的原始论文)</li></ul><h3 id="最小描述长度准则-MDL"><a href="#最小描述长度准则-MDL" class="headerlink" title="最小描述长度准则(MDL)"></a>最小描述长度准则(MDL)</h3><p><strong>利用信息论中的概率重写MAP准则</strong>：<br>$$h<em>{MAP} = argmin</em>{h \in H} - log_2P(D|h) - log<em>2P(h) = argmin</em>{h \in H}L_{C<em>H}(h) + L</em>{C_H}(D|h)$$</p><ul><li>$L_{C_H}(h)  = -log_2P(D|h)$: 在假设空间H的最优编码下h的描述长度</li><li>$ L_{C_H}(D|h) = -log_2P(D|h)$:在上述最优编码下，给定假设h时训练数据D的描述长度</li></ul><p><strong>MDL准则:</strong> $h<em>{MDL} = argmin</em>{h \in H}L_{C<em>1}(h) + L</em>{C_2}(D|h)$<br>当$C_1 = C_H, C_2=C<em>H时， h</em>{MDL} = h_{MAP}$</p><ul><li>当假设$h$足够复杂时$L_{C<em>1}(h)$较大，每个样例都能分类正确$L</em>{C_2}(D|h)= 0$</li><li>反之，结论相反。MDL准则给出了<strong>假设的复杂性和假设产生的错误数量之间的折中</strong></li></ul><p>这篇论文描述了应用MDL准则进行决策树修剪的实验：<a href="http://ac.els-cdn.com/0890540189900102/1-s2.0-0890540189900102-main.pdf?_tid=823d550e-0639-11e7-ae02-00000aab0f26&amp;acdnat=1489223152_9eb9653ea481af70d478f033f7e4dda8" target="_blank" rel="external">Inferring decision trees using the minimum description lenght principle</a></p><h3 id="贝叶斯信念网"><a href="#贝叶斯信念网" class="headerlink" title="贝叶斯信念网"></a>贝叶斯信念网</h3><p>贝叶斯信念网借助变量之间的条件独立性，描述了一组随机变量的联合概率分布。节点表示随机变量，有向线表示依赖关系。<br><strong>条件独立性: </strong>当给定变量集合Z, 变量集合X条件独立于变量集合Y<br>$$  P(X_1…X_l | Y_1…Y_m,Z_1…Z_n) =  P(X_1…X_l | Z_1…Z_n)$$<br><strong>联合概率:</strong> 对于n个随机变量的贝叶斯信念网，有：<br>$$  P(x_1, x_2…x<em>n)  = \prod</em>{i=1}^{n}P(x_i | parents(X_i))$$<br>$parents(X_i)$表示$X_i$的直接前驱节点。</p><p><strong>贝叶斯网的学习</strong><br>当给定网络结构时，可以通过最大化$P(D|h)$来学习</p><h3 id="EM-算法"><a href="#EM-算法" class="headerlink" title="EM 算法"></a>EM 算法</h3><p>存在<strong>隐含变量</strong>时的一种学习算法：$Y$表示可观察数据，$Z$表示未观察到的数据，$X = Y \bigcup Z$表示完整数据；$Z$可以看做随机变量，它依赖于未知参数$\theta$和观测数据$Y$</p><ul><li><strong>E-step:</strong> $Q$函数, 在给定$Y$和当前参数$\theta^{(i)}$下，完全数据的对数似然函数$lnP(X|\theta)$关于未观测数据$Z$的期望($Z$此时由条件概率$P(Z|Y, \theta^{(i)})$限定)<br>$$Q(\theta, \theta^{(i)}) = E_Z[lnP(Y, Z|\theta)|Y, \theta^{(i)}]$$</li><li><strong>M-step:</strong>使得上述$Q$函数取极大值的$\theta$作为$\theta^{(i+1)}$</li></ul><p><strong>高斯混合模型</strong>：经典的使用EM算法的例子</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;注：笔记来自于CMU Tom M. Mitchell的《machine learning》，持续更新笔记，会不断加入自己觉得有联系的知识。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h3 id=&quot;贝叶斯法则&quot;&gt;&lt;a href=&quot;#贝叶斯法则&quot; class=&quot;headerlink&quot; title=&quot;
+      
+    
+    </summary>
+    
+      <category term="机器的理智" scheme="http://luoxc.com/categories/%E6%9C%BA%E5%99%A8%E7%9A%84%E7%90%86%E6%99%BA/"/>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>概念学习</title>
+    <link href="http://luoxc.com/2017/04/04/ml-ch2-mitchell/"/>
+    <id>http://luoxc.com/2017/04/04/ml-ch2-mitchell/</id>
+    <published>2017-04-04T15:55:45.000Z</published>
+    <updated>2017-12-30T16:47:53.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>注：笔记来自于CMU Tom M. Mitchell的《machine learning》，不同章节可能会按需混杂一起陈述；中间加了一些笔者自己的理解和私货，有时候会自以为是地“旁征博引”，以图自己一乐。</p><hr><h3 id="概念学习"><a href="#概念学习" class="headerlink" title="概念学习"></a>概念学习</h3><p><strong>定义：</strong>从有关某个布尔函数的训练样例中推断出该布尔函数；从集合的角度来看，它是实例空间X的一个子集。<br><strong>归纳学习的基本假设：</strong>对未见实例最好的假设就是与训练数据最佳拟合的假设</p><h4 id="假设空间的偏序"><a href="#假设空间的偏序" class="headerlink" title="假设空间的偏序"></a>假设空间的偏序</h4><p><strong>定义：</strong> $h_j, h_k$为在X上定义的布尔函数， 称 $h_j$ <strong>more_general_than_or_equal_to</strong> $h_k$(记作$h_j \ge_g h_k$), 当且仅当：<br>$$(\forall x \in X) [(h_k(x) = 1) \rightarrow (h_j(x) = 1)]$$</p><p><strong>定义：</strong>一个假设$h$与训练集合$D$<strong>一致</strong>，当且仅当$D$中的每一个样例$(x, c(x))$,都有$h(x) = c(x)$<br>$$Consistent(h, D) \equiv (\forall <x, c(x)=""> \in D) [h(x) = c(x)]$$</x,></p><p><strong>定义：变型空间，$VS_{H,D}$</strong><br>$$ VS_{H,D} = { h \in H | Consistent(h, D)}  $$</p><p>变型空间，可使用<strong>一般边界(general boundary)</strong>和<strong>特殊边界(specific boundary)</strong>进行界定。</p><h4 id="归纳偏置"><a href="#归纳偏置" class="headerlink" title="归纳偏置"></a>归纳偏置</h4><p> <strong>无偏的学习器：</strong> 包含所有可能目标概念的假设空间，它是实例空间$X$的幂集($X$的所有子集的集合)</p><p><strong>无偏学习器的无用性：</strong>对于任意未见的实例，它无法给出明确判断，即<strong>没有泛化能力</strong>。对于任一未见的实例$x$, 它总能刚好被变型空间中的一半假设判定为正例，一半假设判定为负例，无法通过投票决定结果。某种程度上也说明，<strong>天下没有免费的午餐</strong>：没有一种通用的学习器，能在任何场景下比其它学习器效果都好。这也充分说明因地制宜的采用合适的归纳偏置是多么的重要。而<strong>归纳偏置</strong>某种程度上是<strong>超参</strong>，是<strong>元学习</strong>。那我们使用学习器来学习这些“超参”，是否这种组合学习算法就能给出时刻优秀的算法呢？答案也是否定的。从数理逻辑角度考虑，哥德尔不完备定理指出，即使我们将“超参”引入学习系统，在更高一层的抽象上仍然存在我们无法推导出的“定理”— 我们在该抽象层仍无法知道它们的对错。就像数学家不应该为“哥德尔不完备定理”感到悲观，机器学习从业者也不应该因为“天下没有免费的午餐”而沮丧— 这也正赋予我们存在的价值。</p><p><strong>归纳偏置</strong>：学习器如果不对目标概念做预先的假定，它从根本上无法对未见的实例进行分类，这些预先假定的<strong>前提集合</strong>称之为归纳偏置。</p><ul><li><strong>归纳系统添加 归纳偏置之后，等价于某种形式的演绎系统</strong></li><li>不同学习器有不同的归纳偏置，通过比较归纳偏置，来比较不同学习器的泛化策略；<strong>有偏性越强的学习器，归纳能力越强</strong>，可以分类更多的未见实例。（可以分类，但不代表分类正确）</li><li>归纳偏置的施加方式有两种：<ul><li>有偏的假设空间：缩小了假设空间，然后对假设空间进行完整搜索，代表算法为 “候选消除算法”</li><li>有偏的搜索方式：没有对假设空间做限定，而是搜索时有偏好，比如决策树构建时，大体上是偏好较短的决策树。</li></ul></li></ul>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;注：笔记来自于CMU Tom M. Mitchell的《machine learning》，不同章节可能会按需混杂一起陈述；中间加了一些笔者自己的理解和私货，有时候会自以为是地“旁征博引”，以图自己一乐。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h3 id=&quot;概念学习&quot;&gt;&lt;a href=&quot;#概
+      
+    
+    </summary>
+    
+      <category term="机器的理智" scheme="http://luoxc.com/categories/%E6%9C%BA%E5%99%A8%E7%9A%84%E7%90%86%E6%99%BA/"/>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>阿桑奇自传</title>
+    <link href="http://luoxc.com/2017/04/04/assange/"/>
+    <id>http://luoxc.com/2017/04/04/assange/</id>
+    <published>2017-04-04T15:23:23.000Z</published>
+    <updated>2017-12-30T16:47:29.000Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="《阿桑奇自传：不能不说的秘密》"><a href="#《阿桑奇自传：不能不说的秘密》" class="headerlink" title="《阿桑奇自传：不能不说的秘密》"></a>《阿桑奇自传：不能不说的秘密》</h2><p>@(读书笔记)[阿桑奇, 维基解密, 传记]</p><hr><h3 id="惊鸿一瞥"><a href="#惊鸿一瞥" class="headerlink" title="惊鸿一瞥"></a>惊鸿一瞥</h3><ul><li><p>保守势力会为我们戴上各种帽子，让媒体发动攻击，祭出“国家利益”、“爱国主义”的大旗，指控我们卖国叛变，但我们一直都深知，世界要比他们想象中的现代得多。开罗在等待着，突尼斯在等待着，我们都在等待着技术进步为全人类带来更大自由的那一天。未来世界中，力量不是来自于枪杆子，而是来自于交流通讯，人不会再通过得到一小群统治精英的认可来认识自己，而是在融入社交网络、充分挖掘巨大政治潜能的过程中认识自己。<br>我以前一直相信，现在也深信不疑，“暴虐势力的主要力量源泉就是它能够秘密地行使权力。”</p></li><li><p>维基解密的创立理念，就是源的存在应是可以无限否认的。我期待有一天，即使权贵势力威胁要惩罚所有张嘴说话的人，世人还是能够运用该技术大声说出来。</p></li><li><p>我们对知识有一种责任，我们对信息有一种义务。正因为如此我们才对图书馆钟情有加。在数字时代，我们也许同样会明白，我们最终要承担责任，利用科技反抗那些阻止知识或信息公开传播的人。我们不能全靠报纸，因为事实一次又一次证明，报纸既是审查者，又有倾向性。我们不能信任广播，因为大多数情况下，广告的价值比新闻的价值对他们更有吸引力。因此，计算机时代的出版本质在于在系统允许下完成任务，同时抵制根深蒂固、自我保护的旧有出版惯例。</p></li><li><p>美国总统西奥多·罗斯福就良政话题有一段箴言。他写道：“表层政府的后面有一个隐形政府，不忠于人民，也不为人民负责。摧毁隐形政府，斩断腐朽商界和腐朽政界的邪恶纽带，是政治家的首要任务。”</p></li><li><p>当受压迫的媒体机构迫切关注、但自己又不能报导的某个重大事件被证实，被首先披露在国际媒体上时，这些受压迫的媒体就会得到解放。其它渠道都封死后，维基解密就是最后的披露者，同时也是一个外力不可阻挡的平台。</p></li><li><p>…需要找到一个开放性（而不是保密）的避风港才行。这样的一个地方也应该是新闻的避风港，由法律规定保护消息来源。新闻自由将是法律的基本精神，网络自由将是现代精神的一部分，免予起诉将是一项标准。我对这个避风港的展望渐渐成形：一个政治独立的地区，一个人们可以不再逃亡的地方，一个将举报人视为英雄而不是公敌的地方，一个法律咨询随时免费提供、全民上网的地方。(阿桑奇觉得冰岛可能合适。)</p></li><li><p>…(冰岛RUV电视台最后一刻接到法律禁制令，不能播放银行业丑闻…于是播放员：)他说，我们现在无法为您献上报导，但有一个组织可以。随后节目就在屏幕上大大打出了维基解密的标识，整整放了几分钟，填补原先留给被禁报导的时间。</p></li></ul><h3 id="三言两语"><a href="#三言两语" class="headerlink" title="三言两语"></a>三言两语</h3><ul><li><p>“一砖头扔下去”，估计砸到的都是像我这样不明白国家、政府、政党的意义和关系的人；不明白自由是什么。我们也不被鼓励讨论这些。我们整天讨论的是房子，也甘愿被房子束缚，也被那些有房子的人指责“整天就只会讨论房子”。我们不明白自己拥有什么，将拥有什么，不知道社会契约论、政府论；对世界历史一无所知。在时代的大潮中，我们卑微地蜷缩成了草履虫。</p><p>万物皆比特。信息的大潮温柔又狂暴无匹，凡是阻截它的，都被它冲刷干净。</p></li></ul>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h2 id=&quot;《阿桑奇自传：不能不说的秘密》&quot;&gt;&lt;a href=&quot;#《阿桑奇自传：不能不说的秘密》&quot; class=&quot;headerlink&quot; title=&quot;《阿桑奇自传：不能不说的秘密》&quot;&gt;&lt;/a&gt;《阿桑奇自传：不能不说的秘密》&lt;/h2&gt;&lt;p&gt;@(读书笔记)[阿桑奇, 维基解密,
+      
+    
+    </summary>
+    
+      <category term="人文的意义" scheme="http://luoxc.com/categories/%E4%BA%BA%E6%96%87%E7%9A%84%E6%84%8F%E4%B9%89/"/>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>穷查理宝典</title>
+    <link href="http://luoxc.com/2017/04/04/poor_charlies/"/>
+    <id>http://luoxc.com/2017/04/04/poor_charlies/</id>
+    <published>2017-04-04T15:19:08.000Z</published>
+    <updated>2017-12-30T16:48:04.000Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="《穷查理宝典》"><a href="#《穷查理宝典》" class="headerlink" title="《穷查理宝典》"></a>《穷查理宝典》</h2><hr><p>早先囫囵吞枣读完了一遍《穷查理宝典》，略作笔记，后续细读。读这些书倒不是想挖掘一两条投资宝典（也没钱投资），而是一种纯粹的好奇。下面记录了该书反复提到的一些知识。</p><h3 id="心理学"><a href="#心理学" class="headerlink" title="心理学"></a>心理学</h3><p>查理非常看重心理学，看重人的心理和行为对于商业的影响。查理不喜欢宏观的泛泛而谈，更倾向细致入围观经济学。</p><ul><li>批评传统的心理学，过于呆板，脱离实际。比如“嫉妒”这一最常见的心理学活动都没有纳入教材</li><li>收集和整理了20多个心理错误倾向，包括<ul><li><strong>被剥夺超级反应倾向</strong>：即将到嘴的肉飞了</li><li><strong>奖励和惩罚超级反应倾向</strong>：有效的激励，避免被钻漏洞</li><li><strong>避免疑虑倾向</strong>：尽快做出决定来消除疑虑的倾向，容易武断行事。</li><li><strong>避免不一致倾向</strong>：大脑的快速反应和守旧。</li><li><strong>康德式公平倾向</strong>：对公平的期待。</li><li><strong>艳羡和妒忌倾向</strong>：人之常情，合理控制，驱动进步。</li><li><strong>受简单联想影响倾向</strong>：如价格和商品质量。品牌效应等。</li><li><strong>简单的、避免痛苦的心理否认</strong>：自我保护，但可能导致堕落。</li><li><strong>自视过高倾向</strong>：高估自己的能力和价值，无来由的固执，对团队危害极大。</li><li><strong>社会认同倾向</strong>：从众和趋同心理，当人困惑和压力重重时最容易发生。</li><li><strong>对比错误反应倾向</strong>：购物时虚报高价，抬高心理预期再缓慢砍价；租房时先给看很差的房子，再看普通房子。</li><li><strong>LOLLAPPALOOZA效应</strong>：多种因素共同作用产生的更激进的效应。</li></ul></li></ul><h3 id="跨学科"><a href="#跨学科" class="headerlink" title="跨学科"></a>跨学科</h3><p>查理认为世界是复杂的，需要学习多学科（在他眼里，如有可能，应该是所有学科）的基本思想和思维模型，比如数学、物理学、心理学等。综合的看待问题，从而避免“铁锤人问题”：在手握铁锤的人眼中，所见的都是钉子。</p><ul><li>掌握多学科的主要模型。不需要成为每一个领域的专家，但了解每一个模型的出处和核心思想，构建多元思维模型。</li><li>保持自主和常识。在多元思维下，保证自己的理性判断。</li><li>终生学习。保持谦卑，终生学习，不断增加自己的模型清单。</li></ul><h3 id="习惯"><a href="#习惯" class="headerlink" title="习惯"></a>习惯</h3><ul><li>专注。专注做好一件事，不要反复无常。一次性把事情做对。</li><li>集中投资。不要反复进行交易，徒然损失交易费；花绝大部分精力在评估企业资产的优劣上，寻找被低估的或者有极大发展潜力的股票。</li><li>列出自己的投资原则检查清单。做重大决策时照此检查。</li><li>“祖母的规矩”：你们必须先吃完胡萝卜，然后才能吃甜点</li></ul><h3 id="提及的著名人物"><a href="#提及的著名人物" class="headerlink" title="提及的著名人物"></a>提及的著名人物</h3><ul><li>西塞罗：罗马的元老院领袖，诗人、哲学家。公共服务是罗马公民的最高义务。</li><li>杰克·韦尔奇：通用电气CEO，《赢》</li><li>本杰明·格拉汉姆：《证券分析》，《聪明的投资者》</li><li>山姆·沃尔顿：沃尔玛CEO</li><li>沃伦·巴菲特：伯克希尔·哈撒韦CEO</li><li>亚当·斯密：《国富论》</li><li>史蒂芬·平克：《语言本能》</li><li>斯坦利·米尔格拉姆：道德信念与权威实验</li><li>菲利普·费舍尔：《怎样选择成长股》</li><li>罗杰·费舍尔：《谈判力》</li><li>《杰出投资者文摘》《自私的基因》《枪炮、病菌与钢铁》《深奥的简洁》</li></ul>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h2 id=&quot;《穷查理宝典》&quot;&gt;&lt;a href=&quot;#《穷查理宝典》&quot; class=&quot;headerlink&quot; title=&quot;《穷查理宝典》&quot;&gt;&lt;/a&gt;《穷查理宝典》&lt;/h2&gt;&lt;hr&gt;
+&lt;p&gt;早先囫囵吞枣读完了一遍《穷查理宝典》，略作笔记，后续细读。读这些书倒不是想挖掘一两条投资宝
+      
+    
+    </summary>
+    
+      <category term="人文的意义" scheme="http://luoxc.com/categories/%E4%BA%BA%E6%96%87%E7%9A%84%E6%84%8F%E4%B9%89/"/>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>当我们谈论Ax时在谈论什么</title>
+    <link href="http://luoxc.com/2017/02/19/talking-Ax/"/>
+    <id>http://luoxc.com/2017/02/19/talking-Ax/</id>
+    <published>2017-02-18T16:29:02.000Z</published>
+    <updated>2017-12-30T16:48:11.000Z</updated>
+    
+    <content type="html"><![CDATA[<h3 id="一、从解方程的角度"><a href="#一、从解方程的角度" class="headerlink" title="一、从解方程的角度"></a>一、从解方程的角度</h3><p>我们经常需要求解$Ax=b$,(这里$A是m*n维矩阵，x是n维列向量$)。我们可以对$A$（或者增广矩阵$[A, b]$）进行行变换得到阶梯型（归一化阶梯型），其中最关键的概念是pivot column, pivot position, free variable  </p><ol><li><p>当b = 0时，$A$满足什么条件， 解空间是非平凡的？    </p><ul><li>当$A$的free variable数量不为0，即$A$的pivot column数量少于n； free variable的数量是解空间的维度。 </li></ul></li><li><p>当$b \ne 0$ 时， $A$满足什么条件，存在解？解是否唯一？对任意的b,是否都存在解？  </p><ul><li>解的存在性：当且仅当增广矩阵的阶梯型，最后的非零行不是[0, b*]的形式。 </li><li>解的唯一性：在存在的前提下，若pivot的数量正好是n，那么就有唯一解;否则解不唯一</li><li>若要对任意的b都存在解：$A$的每一行都存在一个pivot; 另一方面，说明$Ax$能够张成空间$R^m$, $rank(A) = m$。</li></ul></li><li>对于非齐次方程，可以表达成特解与齐次解的和。</li><li>利用LU分解，方便解方程 $$Ax = b \Rightarrow Lz = b, Ux = z$$ </li></ol><h3 id="二、从线性映射的角度"><a href="#二、从线性映射的角度" class="headerlink" title="二、从线性映射的角度"></a>二、从线性映射的角度</h3><ol><li>$Ax$ 表示从$R^n \rightarrow R^m$的线性映射 $T(x): x \rightarrow Ax$, 其中 $A = [T(e_1), T(e_2)… T(e_n)]$ </li><li>A的分类  <ul><li>满射(mapping onto): 对于$\forall b \in R^m, Ax = b$都有解，即$col A = R^m$；也即$rank A = m(m &lt;= n)$，每一行都有一个pivot position.   </li><li>单射(one to one): $x \ne y \Rightarrow Ax \ne Ay $，等价于$Ax = 0$只有平凡解，即没有free variable,  $rank A = n( n &lt;= m)$, 每一列都是Pivot column.<br>从基的角度来看，$ A$的各列是$col A$的一组基, 而不同的坐标$x$，自然对应不同的值。  </li><li>双射(bijection)： A 既是单射又是满射，则A一定是方阵，且$rank(A) = n$。  </li></ul></li><li>若$T: V - &gt;W$ , 对应的变换矩阵$A$是双射，那么，$V和W同构$，从线性代数的角度来看，二者没有区别。另，若选定一组基，任何向量都可以映射（双射）到$R^n$， 因此n维向量空间都是同构的，我们可以用$R^n$来研究任何向量空间。$\forall b, Ax = b$存在唯一的解。</li><li>当$A$是方阵时，下面的结论是等价的：  <ul><li>$A$ 可逆</li><li>$detA \ne 0 $ </li><li>$rank (A) = n, Null (A) = 0$</li><li>$\forall b, Ax = b $有唯一的解, 即 $col A = R^n$</li><li>$A$恰好有n个pivot column.</li><li>$A$ 是双射</li><li>$A$ 可以写成一系列初等矩阵的乘积，也就是行等价于单位矩阵E。</li></ul></li></ol><h3 id="三、从最小二乘角度"><a href="#三、从最小二乘角度" class="headerlink" title="三、从最小二乘角度"></a>三、从最小二乘角度</h3><ol><li>$Ax$不是满射, ($\exists b, Ax = b 无解$)， 相应的问题转换成最小二乘问题。</li><li>最小二乘问题：即 $argmin_{x}||b-Ax||$<ul><li>从线性空间角度来看，等价于求$b$在空间$Ax$的投影$b_0$, 最小取值为 $||b-b_0||$时的$x$</li><li>从统计的角度来看，若噪音满足高斯分布，那么最小二乘问题等价于极大似然。</li><li>当A为单射(rank A = n, 即A的各列线性无关)，最小二乘问题有唯一解，且x为$(A^TA)^{-1}A^Tb$ $(normal \hspace{0.2cm} equation)$</li><li>当A不是单射时，normal equation中的$(A^TA)^{-1}$不存在（因为$rank A^TA = rank A &lt; n$, 不可逆）； A对噪声变得敏感，噪声可能导致数值解法产生的结果相差较大；用机器学习的术语，variance过大。从另一个角度来讲，$L_2$正则化等价于$(A^TA + \lambda I)^{-1}A^Tb$</li></ul></li></ol><h3 id="四、从线性动力系统角度：-x-k-1-Ax-k"><a href="#四、从线性动力系统角度：-x-k-1-Ax-k" class="headerlink" title="四、从线性动力系统角度：$x_{k+1} = Ax_k$"></a>四、从线性动力系统角度：$x_{k+1} = Ax_k$</h3><ol><li><p>对角化</p><ul><li>$A$对角化的充要条件：存在n个线性无关的特征向量构成P的列，则 $A = PDP^{-1}$，其中D为对角矩阵，元素为A的特征值。</li><li>对于$T: x \rightarrow Ax$, 若以P的列向量为基，那么在T在P下的变换矩阵为D。即：$$ T_p: x_p \rightarrow Dx_p $$，线性变换将更直观方便，尤其涉及迭代时,可惜，<strong>并非所有矩阵A都可以对角化</strong></li><li>若<strong>A是实对称矩阵</strong>，那么A可以对角化，且P是正交矩阵；A的所有特征值都是实数。</li><li>对于<strong>所有矩阵A（并不限定是方阵）都存在SVD分解</strong>；<br> $$ A = U \Sigma V $$<br>  其中 $U，V$都是正交矩阵，$\Sigma$是对角矩阵，对角线的值为奇异值（$A^TA$的特征值的平方根），通过截取部分绝对值较大的奇异值，以较小的能量损失为代价，减小矩阵规模。</li></ul></li><li><p>线性动力系统</p><ul><li>典型例子是马尔科夫链</li><li>基于特征空间的分解：若A有n个线性无关的特征向量构成基$[v_1, v_2…v_n]$,相应的特征值$[\lambda_1, \lambda_2…\lambda_n]$(假设绝对值降序排列), 将初始值写作:$$ x_0 = c_1v_1 + c_2v_2 + … + c_nv_n $$<br>那么 $$ x_k = A^kx_0 = c_1\lambda_1^kv_1 + c_2\lambda_2^kv_2 + … + c_n\lambda_1^kv_n $$<br>$x_k$收敛，当前仅当 $|\lambda_i| \le 1$; </li><li>马尔科夫链的状态矩阵A一定有特征值1，若A是regular的，那么 $x_k$收敛到稳态</li><li>事实上，这里的理论非常丰富有趣，一个有趣的例子是一阶线性微分方程组；之前学习通信理论，比如求解电路状态时的种种不适，在这里得到解答。参看Linear Algebra and Its Application, chapter 5.7</li></ul></li></ol>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h3 id=&quot;一、从解方程的角度&quot;&gt;&lt;a href=&quot;#一、从解方程的角度&quot; class=&quot;headerlink&quot; title=&quot;一、从解方程的角度&quot;&gt;&lt;/a&gt;一、从解方程的角度&lt;/h3&gt;&lt;p&gt;我们经常需要求解$Ax=b$,(这里$A是m*n维矩阵，x是n维列向量$)。我们可以
+      
+    
+    </summary>
+    
+      <category term="机器的理智" scheme="http://luoxc.com/categories/%E6%9C%BA%E5%99%A8%E7%9A%84%E7%90%86%E6%99%BA/"/>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>hexo 博客搭建指南</title>
+    <link href="http://luoxc.com/2017/02/18/hexo-%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA%E6%8C%87%E5%8D%97/"/>
+    <id>http://luoxc.com/2017/02/18/hexo-博客搭建指南/</id>
+    <published>2017-02-18T13:47:43.000Z</published>
+    <updated>2017-12-30T17:24:54.000Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="Install-hexo"><a href="#Install-hexo" class="headerlink" title="Install hexo"></a>Install hexo</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ npm install hexo -g</div></pre></td></tr></table></figure><p>若npm很慢，请将npm的源换成taobao的。<br>如果出现问题，可以参见这篇文章：<a href="http://www.jianshu.com/p/b7886271e21a" target="_blank" rel="external">hexo 安装与配置</a></p><h2 id="Initial-hexo-folder"><a href="#Initial-hexo-folder" class="headerlink" title="Initial hexo folder"></a>Initial hexo folder</h2><p>进入一个空文件夹，执行<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo init</div></pre></td></tr></table></figure></p><h2 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h2><p>默认打开本地的4000端口，可以用于调试。可以马上看到hexo的hello world页面<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo server</div></pre></td></tr></table></figure></p><p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="external">Server</a></p><h2 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h2><p>新建文章到 source/_posts/xxx.md, 通过相应md编辑器编辑即可。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo new <span class="string">"My New Post"</span></div></pre></td></tr></table></figure></p><p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="external">Writing</a></p><h2 id="Link-to-github"><a href="#Link-to-github" class="headerlink" title="Link to github"></a>Link to github</h2><ul><li><p>打开_config.yml, 在最后deploy 字段编写如下：</p><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">deploy:</div><div class="line">  type: git</div><div class="line">  repo: https://github.com/XiongcaiLuo/XiongcaiLuo.github.io</div><div class="line">  branch: master</div></pre></td></tr></table></figure></li><li><p>该github的仓库名，必须命令为 your_github_name.github.io</p></li><li>保证 npm install hexo-deployer-git –save 执行成功； </li></ul><h2 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h2><p>生成静态文件到public目录，在发布之前必须先进行这个操作<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo generate</div></pre></td></tr></table></figure></p><p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="external">Generating</a></p><h2 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h2><p>将文章部署到远程仓库，比如github。 在_config.yml中“deploy”进行配置。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ hexo deploy</div></pre></td></tr></table></figure></p><p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="external">Deployment</a></p><h2 id="Custom-domain"><a href="#Custom-domain" class="headerlink" title="Custom domain"></a>Custom domain</h2><ul><li>购买域名</li><li>进入相应工程，创建名为CNAME的文件，文件内容为域名</li><li>工程右上角有个”Settings”, 进入之后,在“custom domain”处填写域名</li><li>在域名商那里设置A record, 或者CNAME record。</li></ul><h2 id="Support-math"><a href="#Support-math" class="headerlink" title="Support math"></a>Support math</h2><ul><li>执行操作:  npm install hexo-math –save</li><li><p>在_config.yml中添加 plugins: hexo-math </p><p>行内公式： $e^{i\pi} + 1 = 0$<br>行间公式： $$A = U \Sigma V$$</p></li></ul><h2 id="Tips"><a href="#Tips" class="headerlink" title="Tips"></a>Tips</h2><ul><li>hexo的命令一般可以用首字母缩写代替，比如 hexo server = hexo s<br>hexo deploy –generate = hexo d -g</li><li>新建文章，并发布的操作一般是：<ul><li>hexo n “your_article_title”</li><li>hexo clean</li><li>hexo d -g</li></ul></li><li>在本地调试，不需要进行generate 和deploy.</li><li>若需要清空缓存，实用<strong>hexo clean</strong></li></ul>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h2 id=&quot;Install-hexo&quot;&gt;&lt;a href=&quot;#Install-hexo&quot; class=&quot;headerlink&quot; title=&quot;Install hexo&quot;&gt;&lt;/a&gt;Install hexo&lt;/h2&gt;&lt;figure class=&quot;highlight bash&quot;&gt;&lt;t
+      
+    
+    </summary>
+    
+      <category term="琐碎的胜利" scheme="http://luoxc.com/categories/%E7%90%90%E7%A2%8E%E7%9A%84%E8%83%9C%E5%88%A9/"/>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>Hello Xigua</title>
+    <link href="http://luoxc.com/2017/02/18/Hello-Xigua/"/>
+    <id>http://luoxc.com/2017/02/18/Hello-Xigua/</id>
+    <published>2017-02-18T13:23:24.000Z</published>
+    <updated>2017-02-18T14:04:25.000Z</updated>
+    
+    <content type="html"><![CDATA[<p>你好，西瓜先生<br>桃李春风一杯酒，江湖夜雨十年灯<br>为有牺牲多壮志，敢叫日月换新天</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;你好，西瓜先生&lt;br&gt;桃李春风一杯酒，江湖夜雨十年灯&lt;br&gt;为有牺牲多壮志，敢叫日月换新天&lt;/p&gt;
+
+      
+    
+    </summary>
+    
+    
+  </entry>
+  
+</feed>

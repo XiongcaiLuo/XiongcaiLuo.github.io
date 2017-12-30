@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+
+    
+    
+  <url>
+    <loc>http://luoxc.com/2017/02/18/hexo-%E5%8D%9A%E5%AE%A2%E6%90%AD%E5%BB%BA%E6%8C%87%E5%8D%97/</loc>
+    <lastmod>2017-12-30T17:24:54.000Z</lastmod>
+    <data>
+        <display>
+        <title>hexo 博客搭建指南</title>
+        <pubTime>2017-02-18T13:47:43.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="琐碎的胜利" url="http://luoxc.com/categories/%E7%90%90%E7%A2%8E%E7%9A%84%E8%83%9C%E5%88%A9/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://luoxc.com/2017/12/31/tf-tutorial/</loc>
+    <lastmod>2017-12-30T17:18:52.000Z</lastmod>
+    <data>
+        <display>
+        <title>Tensorflow简明导论</title>
+        <pubTime>2017-12-30T17:13:22.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="机器的理智" url="http://luoxc.com/categories/%E6%9C%BA%E5%99%A8%E7%9A%84%E7%90%86%E6%99%BA/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://luoxc.com/2017/02/19/talking-Ax/</loc>
+    <lastmod>2017-12-30T16:48:11.000Z</lastmod>
+    <data>
+        <display>
+        <title>当我们谈论Ax时在谈论什么</title>
+        <pubTime>2017-02-18T16:29:02.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="机器的理智" url="http://luoxc.com/categories/%E6%9C%BA%E5%99%A8%E7%9A%84%E7%90%86%E6%99%BA/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://luoxc.com/2017/04/04/poor_charlies/</loc>
+    <lastmod>2017-12-30T16:48:04.000Z</lastmod>
+    <data>
+        <display>
+        <title>穷查理宝典</title>
+        <pubTime>2017-04-04T15:19:08.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="人文的意义" url="http://luoxc.com/categories/%E4%BA%BA%E6%96%87%E7%9A%84%E6%84%8F%E4%B9%89/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://luoxc.com/2017/04/05/ml-ch6-mitchell/</loc>
+    <lastmod>2017-12-30T16:47:59.000Z</lastmod>
+    <data>
+        <display>
+        <title>贝叶斯学习</title>
+        <pubTime>2017-04-04T16:01:39.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="机器的理智" url="http://luoxc.com/categories/%E6%9C%BA%E5%99%A8%E7%9A%84%E7%90%86%E6%99%BA/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://luoxc.com/2017/04/04/ml-ch2-mitchell/</loc>
+    <lastmod>2017-12-30T16:47:53.000Z</lastmod>
+    <data>
+        <display>
+        <title>概念学习</title>
+        <pubTime>2017-04-04T15:55:45.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="机器的理智" url="http://luoxc.com/categories/%E6%9C%BA%E5%99%A8%E7%9A%84%E7%90%86%E6%99%BA/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://luoxc.com/2017/04/04/assange/</loc>
+    <lastmod>2017-12-30T16:47:29.000Z</lastmod>
+    <data>
+        <display>
+        <title>阿桑奇自传</title>
+        <pubTime>2017-04-04T15:23:23.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="人文的意义" url="http://luoxc.com/categories/%E4%BA%BA%E6%96%87%E7%9A%84%E6%84%8F%E4%B9%89/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://luoxc.com/2017/12/30/influence/</loc>
+    <lastmod>2017-12-30T16:47:24.000Z</lastmod>
+    <data>
+        <display>
+        <title>《影响力》摘要</title>
+        <pubTime>2017-12-30T15:46:43.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="人文的意义" url="http://luoxc.com/categories/%E4%BA%BA%E6%96%87%E7%9A%84%E6%84%8F%E4%B9%89/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://luoxc.com/2017/09/17/funny-equation-1-variance-decomposition/</loc>
+    <lastmod>2017-12-30T16:43:28.000Z</lastmod>
+    <data>
+        <display>
+        <title>好玩的公式系列1：方差分解的联想</title>
+        <pubTime>2017-09-17T05:51:46.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="机器的理智" url="http://luoxc.com/categories/%E6%9C%BA%E5%99%A8%E7%9A%84%E7%90%86%E6%99%BA/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://luoxc.com/2017/12/30/information-history/</loc>
+    <lastmod>2017-12-30T16:24:55.000Z</lastmod>
+    <data>
+        <display>
+        <title>《信息简史》--信息的本质</title>
+        <pubTime>2017-12-30T15:52:27.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="逻辑的引擎" url="http://luoxc.com/categories/%E9%80%BB%E8%BE%91%E7%9A%84%E5%BC%95%E6%93%8E/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://luoxc.com/2017/09/17/godel-proof/</loc>
+    <lastmod>2017-12-30T15:13:54.000Z</lastmod>
+    <data>
+        <display>
+        <title>哥德尔不完全性</title>
+        <pubTime>2017-09-17T02:28:30.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="逻辑的引擎" url="http://luoxc.com/categories/%E9%80%BB%E8%BE%91%E7%9A%84%E5%BC%95%E6%93%8E/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://luoxc.com/2017/02/18/Hello-Xigua/</loc>
+    <lastmod>2017-02-18T14:04:25.000Z</lastmod>
+    <data>
+        <display>
+        <title>Hello Xigua</title>
+        <pubTime>2017-02-18T13:23:24.000Z</pubTime>
+        
+         
+           
+        </display>
+    </data>
+    </url>
+
+</urlset>
