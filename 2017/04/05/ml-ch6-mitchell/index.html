@@ -5,25 +5,25 @@
   
   <title>贝叶斯学习 | Mr Xigua</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="注：笔记来自于CMU Tom M. Mitchell的《machine learning》
+  <meta name="description" content="注：笔记来自于CMU Tom M. Mitchell的《machine learning》，持续更新笔记，会不断加入自己觉得有联系的知识。
 
 贝叶斯法则$D$是给定训练数据，$h \in H$是假设空间中的一个假设，$P(h)$是先验概率，则后验概率如下：$$P(h | D) = \frac{P(h)\cdot P(D|h)}{P(D)} $$
-极大后验假设MAP$$h{MAP} = argmax{h \in H} P(h|D)  =  arg">
+极大后验假设MAP$$h{MAP} = argmax">
 <meta property="og:type" content="article">
 <meta property="og:title" content="贝叶斯学习">
 <meta property="og:url" content="http://luoxc.com/2017/04/05/ml-ch6-mitchell/index.html">
 <meta property="og:site_name" content="Mr Xigua">
-<meta property="og:description" content="注：笔记来自于CMU Tom M. Mitchell的《machine learning》
+<meta property="og:description" content="注：笔记来自于CMU Tom M. Mitchell的《machine learning》，持续更新笔记，会不断加入自己觉得有联系的知识。
 
 贝叶斯法则$D$是给定训练数据，$h \in H$是假设空间中的一个假设，$P(h)$是先验概率，则后验概率如下：$$P(h | D) = \frac{P(h)\cdot P(D|h)}{P(D)} $$
-极大后验假设MAP$$h{MAP} = argmax{h \in H} P(h|D)  =  arg">
-<meta property="og:updated_time" content="2017-04-04T16:05:43.000Z">
+极大后验假设MAP$$h{MAP} = argmax">
+<meta property="og:updated_time" content="2017-12-30T15:42:52.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="贝叶斯学习">
-<meta name="twitter:description" content="注：笔记来自于CMU Tom M. Mitchell的《machine learning》
+<meta name="twitter:description" content="注：笔记来自于CMU Tom M. Mitchell的《machine learning》，持续更新笔记，会不断加入自己觉得有联系的知识。
 
 贝叶斯法则$D$是给定训练数据，$h \in H$是假设空间中的一个假设，$P(h)$是先验概率，则后验概率如下：$$P(h | D) = \frac{P(h)\cdot P(D|h)}{P(D)} $$
-极大后验假设MAP$$h{MAP} = argmax{h \in H} P(h|D)  =  arg">
+极大后验假设MAP$$h{MAP} = argmax">
   
     <link rel="alternate" href="/atom.xml" title="Mr Xigua" type="application/atom+xml">
   
@@ -65,9 +65,9 @@
       </nav>
       <nav id="sub-nav">
         
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="Flux RSS"></a>
         
-        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+        <a id="nav-search-btn" class="nav-icon" title="Rechercher"></a>
       </nav>
       <div id="search-form-wrap">
         <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://luoxc.com"></form>
@@ -82,6 +82,10 @@
   <time datetime="2017-04-04T16:01:39.000Z" itemprop="datePublished">2017-04-05</time>
 </a>
     
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/machine-learning/">machine learning</a>
+  </div>
+
   </div>
   <div class="article-inner">
     
@@ -98,7 +102,7 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>注：笔记来自于CMU Tom M. Mitchell的《machine learning》</p>
+        <p>注：笔记来自于CMU Tom M. Mitchell的《machine learning》，持续更新笔记，会不断加入自己觉得有联系的知识。</p>
 <hr>
 <h3 id="贝叶斯法则"><a href="#贝叶斯法则" class="headerlink" title="贝叶斯法则"></a>贝叶斯法则</h3><p>$D$是给定训练数据，$h \in H$是假设空间中的一个假设，$P(h)$是先验概率，则后验概率如下：<br>$$P(h | D) = \frac{P(h)\cdot P(D|h)}{P(D)} $$</p>
 <p><strong>极大后验假设MAP</strong><br>$$h<em>{MAP} = argmax</em>{h \in H} P(h|D)  =  argmax_{h \in H} P(h)\cdot P(D|h)$$</p>
@@ -129,7 +133,11 @@
 <li>目标的布尔值为输入实例的概率函数</li>
 </ul>
 <p>我们需要学习$P(d=1|x)$, 假设训练样本$(x_i, d<em>i), i = 1,2…m$相互独立<br>$$P(D | h) = \prod</em>{i=1}^{m}P(x_i, d<em>i | h) = \prod</em>{i=1}^{m}P(d_i|h, x_i)P(x_i)$$<br>$$P(d_i|h, x_i) = h(x_i)^{d_i}(1-h(x_i))^{1-d<em>i}$$<br>$$h</em>{ML} =argmax<em>{h \in H} \prod</em>{i=1}^{m}h(x_i)^{d_i}(1-h(x_i))^{1-d_i}P(x_i)$$<br>取对数，并去掉最后无关的$In P(x<em>i)$:<br>$$h</em>{ML} =  argmax<em>{h \in H}  \sum</em>{i=1}^{m}d_i lnh(x_i) + (1-d_i)ln(1-h(x<em>i))$$<br>$$h</em>{ML} =  argmin<em>{h \in H}  - \sum</em>{i=1}^{m}d_i lnh(x_i) + (1-d_i)ln(1-h(x_i))$$<br>即：<strong>最小化交叉熵</strong></p>
-<h3 id="最小描述长度准则-MDL"><a href="#最小描述长度准则-MDL" class="headerlink" title="最小描述长度准则(MDL)"></a>最小描述长度准则(MDL)</h3><p>利用信息论中的概率重写MAP准则：<br>$$h<em>{MAP} = argmin</em>{h \in H} - log_2P(D|h) - log<em>2P(h) = argmin</em>{h \in H}L_{C<em>H}(h) + L</em>{C_H}(D|h)$$</p>
+<ul>
+<li>极大似然准则(ML)，等价于最小化实例数据分布和模型生成分布之间的KL距离：$KL(P<em>{data} || P</em>{model})$</li>
+<li>借助GAN的框架（主要是f-GAN的思想），我们可以提出不同于ML的准则，即最小化不同于KL距离的其它概率距离度量，比如$JS(P<em>{data} || P</em>{model})$(参见origin GAN, f-GAN的原始论文)</li>
+</ul>
+<h3 id="最小描述长度准则-MDL"><a href="#最小描述长度准则-MDL" class="headerlink" title="最小描述长度准则(MDL)"></a>最小描述长度准则(MDL)</h3><p><strong>利用信息论中的概率重写MAP准则</strong>：<br>$$h<em>{MAP} = argmin</em>{h \in H} - log_2P(D|h) - log<em>2P(h) = argmin</em>{h \in H}L_{C<em>H}(h) + L</em>{C_H}(D|h)$$</p>
 <ul>
 <li>$L_{C_H}(h)  = -log_2P(D|h)$: 在假设空间H的最优编码下h的描述长度</li>
 <li>$ L_{C_H}(D|h) = -log_2P(D|h)$:在上述最优编码下，给定假设h时训练数据D的描述长度</li>
@@ -147,12 +155,12 @@
 <li><strong>E-step:</strong> $Q$函数, 在给定$Y$和当前参数$\theta^{(i)}$下，完全数据的对数似然函数$lnP(X|\theta)$关于未观测数据$Z$的期望($Z$此时由条件概率$P(Z|Y, \theta^{(i)})$限定)<br>$$Q(\theta, \theta^{(i)}) = E_Z[lnP(Y, Z|\theta)|Y, \theta^{(i)}]$$</li>
 <li><strong>M-step:</strong>使得上述$Q$函数取极大值的$\theta$作为$\theta^{(i+1)}$</li>
 </ul>
-<p><strong>高斯混合模型</strong><br>经典的使用EM算法的例子。</p>
+<p><strong>高斯混合模型</strong>：经典的使用EM算法的例子</p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://luoxc.com/2017/04/05/ml-ch6-mitchell/" data-id="cjbthgsm600078n5d1dpbjggv" class="article-share-link">Share</a>
+      <a data-url="http://luoxc.com/2017/04/05/ml-ch6-mitchell/" data-id="cjbthgsm600078n5d1dpbjggv" class="article-share-link">Partager</a>
       
       
     </footer>
@@ -162,7 +170,7 @@
 <nav id="article-nav">
   
     <a href="/2017/09/17/godel-proof/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Newer</strong>
+      <strong class="article-nav-caption">Récent</strong>
       <div class="article-nav-title">
         
           哥德尔不完全性
@@ -172,7 +180,7 @@
   
   
     <a href="/2017/04/04/ml-ch2-mitchell/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">Older</strong>
+      <strong class="article-nav-caption">Ancien</strong>
       <div class="article-nav-title">概念学习</div>
     </a>
   
@@ -187,9 +195,9 @@
   
     
   <div class="widget-wrap">
-    <h3 class="widget-title">Categories</h3>
+    <h3 class="widget-title">Catégories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/machine-learning/">machine learning</a></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/machine-learning/">machine learning</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/人文社科/">人文社科</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/琐碎的实用主义/">琐碎的实用主义</a></li><li class="category-list-item"><a class="category-list-link" href="/categories/逻辑的引擎/">逻辑的引擎</a></li></ul>
     </div>
   </div>
 
@@ -212,7 +220,7 @@
   
     
   <div class="widget-wrap">
-    <h3 class="widget-title">Recent Posts</h3>
+    <h3 class="widget-title">Articles récents</h3>
     <div class="widget">
       <ul>
         
@@ -249,7 +257,7 @@
   <div class="outer">
     <div id="footer-info" class="inner">
       &copy; 2017 Finch Luo<br>
-      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+      Propulsé by <a href="http://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>
 </footer>
