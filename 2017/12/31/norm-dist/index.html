@@ -3,18 +3,39 @@
 <head>
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
   
-  <title>Hello Xigua | 西瓜的木屋</title>
+  <title>正态分布 | 西瓜的木屋</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="你好，西瓜先生桃李春风一杯酒，江湖夜雨十年灯为有牺牲多壮志，敢叫日月换新天">
+  <meta name="description" content="单变量正态分布定义： $p(x) = \frac{1}{\sqrt{2\pi}\delta}e^{-\frac{1}{2}(\frac{x-\mu}{\delta})^2}$
+
+$E(x) = \mu$, $D(x) = \delta^2$
+$y = ax+b$ 是正态分布，其中a,b是常数
+$E(y) = a\mu+b,  D(y) = a^2\delta^2$
+
+
+$y = \sum_{i=1">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Hello Xigua">
-<meta property="og:url" content="http://luoxc.com/2017/02/18/Hello-Xigua/index.html">
+<meta property="og:title" content="正态分布">
+<meta property="og:url" content="http://luoxc.com/2017/12/31/norm-dist/index.html">
 <meta property="og:site_name" content="西瓜的木屋">
-<meta property="og:description" content="你好，西瓜先生桃李春风一杯酒，江湖夜雨十年灯为有牺牲多壮志，敢叫日月换新天">
-<meta property="og:updated_time" content="2017-02-18T14:04:25.000Z">
+<meta property="og:description" content="单变量正态分布定义： $p(x) = \frac{1}{\sqrt{2\pi}\delta}e^{-\frac{1}{2}(\frac{x-\mu}{\delta})^2}$
+
+$E(x) = \mu$, $D(x) = \delta^2$
+$y = ax+b$ 是正态分布，其中a,b是常数
+$E(y) = a\mu+b,  D(y) = a^2\delta^2$
+
+
+$y = \sum_{i=1">
+<meta property="og:updated_time" content="2017-12-30T18:48:08.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Hello Xigua">
-<meta name="twitter:description" content="你好，西瓜先生桃李春风一杯酒，江湖夜雨十年灯为有牺牲多壮志，敢叫日月换新天">
+<meta name="twitter:title" content="正态分布">
+<meta name="twitter:description" content="单变量正态分布定义： $p(x) = \frac{1}{\sqrt{2\pi}\delta}e^{-\frac{1}{2}(\frac{x-\mu}{\delta})^2}$
+
+$E(x) = \mu$, $D(x) = \delta^2$
+$y = ax+b$ 是正态分布，其中a,b是常数
+$E(y) = a\mu+b,  D(y) = a^2\delta^2$
+
+
+$y = \sum_{i=1">
   
     <link rel="alternate" href="/atom.xml" title="西瓜的木屋" type="application/atom+xml">
   
@@ -67,12 +88,16 @@
   </div>
 </header>
       <div class="outer">
-        <section id="main"><article id="post-Hello-Xigua" class="article article-type-post" itemscope itemprop="blogPost">
+        <section id="main"><article id="post-norm-dist" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="" class="article-date">
-  <time datetime="2017-02-18T13:23:24.000Z" itemprop="datePublished">2017-02-18</time>
+  <time datetime="2017-12-30T18:40:59.000Z" itemprop="datePublished">2017-12-31</time>
 </a>
     
+  <div class="article-category">
+    <a class="article-category-link" href="../../../../categories/机器的理智/">机器的理智</a>
+  </div>
+
   </div>
   <div class="article-inner">
     
@@ -81,7 +106,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      Hello Xigua
+      正态分布
     </h1>
   
 
@@ -89,12 +114,28 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>你好，西瓜先生<br>桃李春风一杯酒，江湖夜雨十年灯<br>为有牺牲多壮志，敢叫日月换新天</p>
+        <h3 id="单变量正态分布"><a href="#单变量正态分布" class="headerlink" title="单变量正态分布"></a>单变量正态分布</h3><p><strong>定义：</strong> $p(x) = \frac{1}{\sqrt{2\pi}\delta}e^{-\frac{1}{2}(\frac{x-\mu}{\delta})^2}$</p>
+<ul>
+<li>$E(x) = \mu$, $D(x) = \delta^2$</li>
+<li>$y = ax+b$ 是正态分布，其中a,b是常数<ul>
+<li>$E(y) = a\mu+b,  D(y) = a^2\delta^2$</li>
+</ul>
+</li>
+<li>$y = \sum_{i=1}^{n}x_i$, 且$x_i$都是正态分布时， $y$是正态分布？<ul>
+<li>$E(y) = \sum_{i=1}^{n}\mu<em>i,  D(y) =\sum</em>{i=1}^{n}\delta_i^2 $</li>
+</ul>
+</li>
+</ul>
+<h3 id="多元正态分布"><a href="#多元正态分布" class="headerlink" title="多元正态分布"></a>多元正态分布</h3><p><strong>定义：</strong>当随机向量$X=\mu + B\epsilon$满足: $u$是n维常向量，$B$是n*m维矩阵， $\epsilon = [\epsilon_1, \epsilon_2…\epsilon_m]$的分量都是相互独立的标准正态分布时，称$X$满足多元正态分布。</p>
+<ul>
+<li>即$X$的每一维都能分解成某一共同的<strong>m个相互独立的标准正态分布的线性组合</strong></li>
+<li>$E(X) = \mu, \Sigma = BB^T$</li>
+</ul>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://luoxc.com/2017/02/18/Hello-Xigua/" data-id="cjbtpjmf700005w5dpde12enq" class="article-share-link">Share</a>
+      <a data-url="http://luoxc.com/2017/12/31/norm-dist/" data-id="cjbtpjmgt000d5w5d976ldlf8" class="article-share-link">Share</a>
       
       
     </footer>
@@ -103,15 +144,20 @@
     
 <nav id="article-nav">
   
-    <a href="../hexo-博客搭建指南/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="../unbias-estimator/" id="article-nav-newer" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          hexo 博客搭建指南
+          无偏估计
         
       </div>
     </a>
   
+  
+    <a href="../tf-tutorial/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Tensorflow简明导论</div>
+    </a>
   
 </nav>
 
@@ -154,23 +200,23 @@
       <ul>
         
           <li>
-            <a href="../../../12/31/optimization/">最优化方法</a>
+            <a href="../optimization/">最优化方法</a>
           </li>
         
           <li>
-            <a href="../../../12/31/unbias-estimator/">无偏估计</a>
+            <a href="../unbias-estimator/">无偏估计</a>
           </li>
         
           <li>
-            <a href="../../../12/31/norm-dist/">正态分布</a>
+            <a href="">正态分布</a>
           </li>
         
           <li>
-            <a href="../../../12/31/tf-tutorial/">Tensorflow简明导论</a>
+            <a href="../tf-tutorial/">Tensorflow简明导论</a>
           </li>
         
           <li>
-            <a href="../../../12/30/information-history/">《信息简史》--信息的本质</a>
+            <a href="../../30/information-history/">《信息简史》--信息的本质</a>
           </li>
         
       </ul>
@@ -209,6 +255,23 @@
 
 <script src="../../../../js/script.js"></script>
 
-  </div><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  </div><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config("");
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
 </body>
 </html>

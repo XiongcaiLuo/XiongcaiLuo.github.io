@@ -65,6 +65,208 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-optimization" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="2017/12/31/optimization/" class="article-date">
+  <time datetime="2017-12-30T18:49:46.000Z" itemprop="datePublished">2017-12-31</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="categories/机器的理智/">机器的理智</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="2017/12/31/optimization/">最优化方法</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>@(math)[最优化, 牛顿法, 梯度下降法, 拟牛顿法, 数值计算]</p>
+<hr>
+<h3 id="梯度下降"><a href="#梯度下降" class="headerlink" title="梯度下降"></a>梯度下降</h3><p><strong>核心思想：负梯度方向是函数值下降最快的方向</strong><br>$$x_{i+1} = x_i - \eta f^{(1)}(x_i)$$<br>其中，$\eta &gt; 0$是学习率, 需要设置和调整。</p>
+<h3 id="牛顿法"><a href="#牛顿法" class="headerlink" title="牛顿法"></a>牛顿法</h3><p><strong>核心思想：将函数$f(x)$进行泰勒展开，得到二阶多项式</strong>,如第$i$次迭代时：<br>$$f(x) = f(x_i) + \frac{f^{(1)}(x_i)}{1!}(x - x_i) + \frac{f^{(2)}(x_i)}{2!}(x-x_i)^2 + o((x-x_i)^2)$$<br>当$f(x)$取极值时，有$f^{(1)}(x) = 0$, 因此对上式求导，并舍弃高阶项，得到：<br>$$0 = f^{(1)}(x_i) +f^{(2)}(x_i)(x-x_i) $$<br>$$x = x_i - \frac{f^{(1)}(x_i)}{f^{(2)}(x<em>i)}$$<br>对于多元函数，相应的矩阵迭代形式如下：<br>$$x</em>{i+1} = x<em>i - H</em>{x<em>i}^{-1}\nabla</em>{x_i} f$$<br>其中$H$是海塞矩阵<br><strong>特点：</strong></p>
+<ul>
+<li>对于二次函数，或者比较接近二次的函数或者在极小值点附近，牛顿法比梯度下降法收敛的更快</li>
+<li>对于一般函数，牛顿法可能导致计算发散不收敛。改进：<strong>阻尼牛顿法</strong>，在搜索方向$- H_{x<em>i}^{-1}\nabla</em>{x<em>i} f$ 上搜索合适的步长$\lambda$：$- \lambda H</em>{x<em>i}^{-1}\nabla</em>{x_i} f$ </li>
+<li>对于高维特征，$H^{-1}$的计算代价将非常高昂; 可以令$-H^{-1}_k g_k = p<em>k$, 通过求解$H</em>{k}p_k = -g_k$ 得到步长$p_k$, 但是每次计算$H_k$代价仍然非常高</li>
+</ul>
+<p><strong>H提供的信息</strong><br>二阶导数是对曲率的衡量。对于步长为$\epsilon$,</p>
+<ul>
+<li>H为0：代价函数下降约$\epsilon$</li>
+<li>H为负：代价函数下降大于$\epsilon$</li>
+<li>H为正：代价函数下降小于$\epsilon$，甚至有可能增长<br><img src="/2017/12/31/optimization/hess.png" alt="hess"></li>
+</ul>
+<p><img src="/2017/12/31/optimization/eq1.png" alt="eq1"><br>当步长为$\epsilon$时，迭代<br><img src="/2017/12/31/optimization/eq2.png" alt="eq2"><br>此时，若$H$正定矩阵，那么最优步长<br><img src="/2017/12/31/optimization/eq3.png" alt="eq3"><br>最坏情况下，g与H的最大特征向量方向平行，此时步长为$\frac{1}{\lambda_{max}}$</p>
+<p><strong>局部极值测试</strong></p>
+<ul>
+<li>$f’(x) = 0, H(x) &gt; 0$: 局部极小值</li>
+<li>$f’(x) = 0, H(x) &lt; 0$: 局部极大值</li>
+<li>$f’(x) = 0, H(x) = 0$: 不确定</li>
+</ul>
+<p><strong>条件数</strong><br>对于矩阵$A \in R^{n\times n}$, 若有特征值，那么定义条件数：<br>$$cond(A) = |\frac{\lambda<em>{max}}{\lambda</em>{min}} |$$<br>$H$是对称矩阵，一定有n个特征值(包含重数)。</p>
+<ul>
+<li>当条件数过大时，矩阵求逆会放大误差<ul>
+<li>本身求逆不稳定</li>
+<li>$H^{-1}g$会放大$g$的误差。</li>
+</ul>
+</li>
+</ul>
+<h3 id="拟牛顿法"><a href="#拟牛顿法" class="headerlink" title="拟牛顿法"></a>拟牛顿法</h3><h4 id="DFP算法"><a href="#DFP算法" class="headerlink" title="DFP算法"></a>DFP算法</h4><p>牛顿法中海塞矩阵的计算代价高昂，考虑用一个n阶矩阵$G_k$去近似代替$H_k^{-1} = H^{-1}(x<em>k)$<br>我们将f在点$x</em>{k+1}$展开：<br>$$<br>    f(x) = f(x<em>{k+1}) + g</em>{k+1}^T x<em>k + \frac{1}{2}(x - x</em>{k+1})^T H<em>{k+1}(x - x</em>{k+1}) \<br>    \nabla f(x) = g<em>{k+1} + H</em>{k+1}(x - x<em>{k+1} ) \<br>$$<br>这里，取$x = x</em>{k}$, 则<br>$$<br>    g<em>k =  g</em>{k+1} + H_{k+1}(x<em>k - x</em>{k+1} )<br>$$<br>令$y<em>k = g</em>{k+1} - g_k, \delta<em>k = x</em>{k+1} - x<em>k$, 则：<br>$$<br>    H</em>{k+1} \delta_k = y<em>k, 或\<br>    H</em>{k+1}^{-1} y_k = \delta_k<br>$$<br>称之为<strong>拟牛顿条件</strong>,给出了下面的迭代依据：</p>
+<ul>
+<li>使用正定矩阵$G<em>k$代替$H</em>{k}^{-1}$，且迭代求解$G_{k+1}$</li>
+</ul>
+<p>令$G_{k+1} = G_k + \Delta G = G_k + P_k + Q<em>k$ , 则$G</em>{k+1}y_k = G_k y_k + P_k y_k + Q_k y_k$, 若要满足<strong>拟牛顿条件</strong>，只需：<br>$$<br>     P_k y_k = \delta_k\<br>     Q_k y_k = -G_k y_k<br>$$<br>只需：<br>$$<br>\delta_k = \delta_k \frac{\delta_k^T y_k}{\delta_k^T y_k} =\frac{\delta_k \delta_k^T }{\delta_k^T y_k} y_k \<br>令P_k = \frac{\delta_k \delta_k^T }{\delta_k^T y_k} 即可\<br>同理: Q_k = -\frac{G_k y_k y_k^T G_k}{y_k^T G_k y_k}<br>$$<br><strong>DFP算法伪代码：</strong><br><img src="/2017/12/31/optimization/DFP.png" alt="DFP"></p>
+<h4 id="BFGS算法"><a href="#BFGS算法" class="headerlink" title="BFGS算法"></a>BFGS算法</h4><p>原理同DFP，但是直接使用$B_k$来模拟$H_k$而不是$H<em>k^{-1}$<br>$$<br>B</em>{k+1} = B_k + \frac{y_k y_k^T}{y_k^T \delta_k} - \frac{B_k \delta_k \delta_k^T B_k}{\delta_k^T B_k \delta_k}<br>$$<br><strong>BFGS算法伪代码：</strong><br><img src="/2017/12/31/optimization/BFGS.png" alt="BFGS"></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://luoxc.com/2017/12/31/optimization/" data-id="cjbtpjmgh000a5w5dgwaqmvew" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-unbias-estimator" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="2017/12/31/unbias-estimator/" class="article-date">
+  <time datetime="2017-12-30T18:43:18.000Z" itemprop="datePublished">2017-12-31</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="categories/机器的理智/">机器的理智</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="2017/12/31/unbias-estimator/">无偏估计</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><strong>Bessel’s correction</strong></p>
+<ul>
+<li>计算协方差的时候并不是除以N, 那是因为每一列的和为0，因此自由度为N-1<ul>
+<li>解释bias来源：<a href="https://en.wikipedia.org/wiki/Bessel%27s_correction#Source_of_bias" target="_blank" rel="external">https://en.wikipedia.org/wiki/Bessel%27s_correction#Source_of_bias</a><ul>
+<li>本质上就是样本均值(sample mean)与总体均值(population mean)不同。此时，样本方差总是比真实方差小</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>修正后，方差是无偏的，但标准差是有偏的。因为sqrt是上凸函数<ul>
+<li>标准差无偏估计：<a href="https://en.wikipedia.org/wiki/Unbiased_estimation_of_standard_deviation" target="_blank" rel="external">https://en.wikipedia.org/wiki/Unbiased_estimation_of_standard_deviation</a></li>
+<li>自由度：能独立变化的变量个数</li>
+</ul>
+</li>
+<li>当真实均值给定(而不是从样本中计算)时候，除以N</li>
+</ul>
+<p><strong>sample var, population var</strong></p>
+<ul>
+<li><p>$\mu$: population mean（总体均值）</p>
+</li>
+<li><p>$\delta^2$: population variance</p>
+</li>
+<li><p>$\bar{x}$: sample mean(样本均值)</p>
+</li>
+<li><p>$s_n^2$: sample variance（n个样本方差）</p>
+<p>可以将$\bar{x}, s_n^2$看做随机变量，它们是对$\mu, \delta^2$的估计。</p>
+<p>对于$\bar{x}$有：$$ E[\bar{x}] = \mu, 无偏估计$$<br>$$ E[(\bar{x} - \mu)^2] = \frac{\delta^2}{n}$$<br>对于$s_n^2$有：<br>$$ E[s<em>n^2] = E[\frac{1}{n} \sum</em>{i=1}^n(x<em>i - \bar{x})^2]  = E[\frac{1}{n} \sum</em>{i=1}^n(x<em>i - \mu + \mu - \bar{x})^2] \ = E[\frac{1}{n} \sum</em>{i=1}^n(x_i - \mu)^2 + (\mu - \bar{x})^2 + 2(x<em>i-\mu)(\mu - \bar{x})] \ = \frac{1}{n} \sum</em>{i=1}^nE[(x_i-\mu)^2] + E[(\mu - \bar{x})^2 + 2(\bar{x}-\mu)(\mu - \bar{x})] \ = \delta^2 - E[(\mu- \bar{x})^2] = \delta^2 - \frac{\delta^2}{n}  = \frac{n-1}{n}\delta^2$$</p>
+</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://luoxc.com/2017/12/31/unbias-estimator/" data-id="cjbtpjmhb000q5w5dyrqughon" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-norm-dist" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="2017/12/31/norm-dist/" class="article-date">
+  <time datetime="2017-12-30T18:40:59.000Z" itemprop="datePublished">2017-12-31</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="categories/机器的理智/">机器的理智</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="2017/12/31/norm-dist/">正态分布</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h3 id="单变量正态分布"><a href="#单变量正态分布" class="headerlink" title="单变量正态分布"></a>单变量正态分布</h3><p><strong>定义：</strong> $p(x) = \frac{1}{\sqrt{2\pi}\delta}e^{-\frac{1}{2}(\frac{x-\mu}{\delta})^2}$</p>
+<ul>
+<li>$E(x) = \mu$, $D(x) = \delta^2$</li>
+<li>$y = ax+b$ 是正态分布，其中a,b是常数<ul>
+<li>$E(y) = a\mu+b,  D(y) = a^2\delta^2$</li>
+</ul>
+</li>
+<li>$y = \sum_{i=1}^{n}x_i$, 且$x_i$都是正态分布时， $y$是正态分布？<ul>
+<li>$E(y) = \sum_{i=1}^{n}\mu<em>i,  D(y) =\sum</em>{i=1}^{n}\delta_i^2 $</li>
+</ul>
+</li>
+</ul>
+<h3 id="多元正态分布"><a href="#多元正态分布" class="headerlink" title="多元正态分布"></a>多元正态分布</h3><p><strong>定义：</strong>当随机向量$X=\mu + B\epsilon$满足: $u$是n维常向量，$B$是n*m维矩阵， $\epsilon = [\epsilon_1, \epsilon_2…\epsilon_m]$的分量都是相互独立的标准正态分布时，称$X$满足多元正态分布。</p>
+<ul>
+<li>即$X$的每一维都能分解成某一共同的<strong>m个相互独立的标准正态分布的线性组合</strong></li>
+<li>$E(X) = \mu, \Sigma = BB^T$</li>
+</ul>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://luoxc.com/2017/12/31/norm-dist/" data-id="cjbtpjmgt000d5w5d976ldlf8" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-tf-tutorial" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="2017/12/31/tf-tutorial/" class="article-date">
@@ -230,7 +432,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://luoxc.com/2017/12/31/tf-tutorial/" data-id="cjbtou6vz000j8p5dhu1r83d7" class="article-share-link">Share</a>
+      <a data-url="http://luoxc.com/2017/12/31/tf-tutorial/" data-id="cjbtpjmh9000n5w5ddlwcpvou" class="article-share-link">Share</a>
       
       
     </footer>
@@ -332,7 +534,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://luoxc.com/2017/12/30/information-history/" data-id="cjbtou6v300088p5ds4dl20m7" class="article-share-link">Share</a>
+      <a data-url="http://luoxc.com/2017/12/30/information-history/" data-id="cjbtpjmg700055w5danirkjlp" class="article-share-link">Share</a>
       
       
     </footer>
@@ -418,7 +620,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://luoxc.com/2017/12/30/influence/" data-id="cjbtou6v100068p5dyvr11m6o" class="article-share-link">Share</a>
+      <a data-url="http://luoxc.com/2017/12/30/influence/" data-id="cjbtpjmg100045w5dag80wabl" class="article-share-link">Share</a>
       
       
     </footer>
@@ -530,7 +732,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://luoxc.com/2017/09/17/funny-equation-1-variance-decomposition/" data-id="cjbtou6ud00028p5dkyvjxnk0" class="article-share-link">Share</a>
+      <a data-url="http://luoxc.com/2017/09/17/funny-equation-1-variance-decomposition/" data-id="cjbtpjmfd00015w5dr2oinq4e" class="article-share-link">Share</a>
       
       
     </footer>
@@ -712,7 +914,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://luoxc.com/2017/09/17/godel-proof/" data-id="cjbtou6uv00048p5dc9vtk7kd" class="article-share-link">Share</a>
+      <a data-url="http://luoxc.com/2017/09/17/godel-proof/" data-id="cjbtpjmga00065w5df2gqv2kg" class="article-share-link">Share</a>
       
       
     </footer>
@@ -806,7 +1008,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://luoxc.com/2017/04/05/ml-ch6-mitchell/" data-id="cjbtou6v8000d8p5dntmvg0uy" class="article-share-link">Share</a>
+      <a data-url="http://luoxc.com/2017/04/05/ml-ch6-mitchell/" data-id="cjbtpjmgy000g5w5dbltpossm" class="article-share-link">Share</a>
       
       
     </footer>
@@ -865,261 +1067,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://luoxc.com/2017/04/04/ml-ch2-mitchell/" data-id="cjbtou6v5000a8p5d06rv7u0d" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-assange" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="2017/04/04/assange/" class="article-date">
-  <time datetime="2017-04-04T15:23:23.000Z" itemprop="datePublished">2017-04-04</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="categories/人文的意义/">人文的意义</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="2017/04/04/assange/">阿桑奇自传</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="《阿桑奇自传：不能不说的秘密》"><a href="#《阿桑奇自传：不能不说的秘密》" class="headerlink" title="《阿桑奇自传：不能不说的秘密》"></a>《阿桑奇自传：不能不说的秘密》</h2><p>@(读书笔记)[阿桑奇, 维基解密, 传记]</p>
-<hr>
-<h3 id="惊鸿一瞥"><a href="#惊鸿一瞥" class="headerlink" title="惊鸿一瞥"></a>惊鸿一瞥</h3><ul>
-<li><p>保守势力会为我们戴上各种帽子，让媒体发动攻击，祭出“国家利益”、“爱国主义”的大旗，指控我们卖国叛变，但我们一直都深知，世界要比他们想象中的现代得多。开罗在等待着，突尼斯在等待着，我们都在等待着技术进步为全人类带来更大自由的那一天。未来世界中，力量不是来自于枪杆子，而是来自于交流通讯，人不会再通过得到一小群统治精英的认可来认识自己，而是在融入社交网络、充分挖掘巨大政治潜能的过程中认识自己。<br>我以前一直相信，现在也深信不疑，“暴虐势力的主要力量源泉就是它能够秘密地行使权力。”</p>
-</li>
-<li><p>维基解密的创立理念，就是源的存在应是可以无限否认的。我期待有一天，即使权贵势力威胁要惩罚所有张嘴说话的人，世人还是能够运用该技术大声说出来。</p>
-</li>
-<li><p>我们对知识有一种责任，我们对信息有一种义务。正因为如此我们才对图书馆钟情有加。在数字时代，我们也许同样会明白，我们最终要承担责任，利用科技反抗那些阻止知识或信息公开传播的人。我们不能全靠报纸，因为事实一次又一次证明，报纸既是审查者，又有倾向性。我们不能信任广播，因为大多数情况下，广告的价值比新闻的价值对他们更有吸引力。因此，计算机时代的出版本质在于在系统允许下完成任务，同时抵制根深蒂固、自我保护的旧有出版惯例。</p>
-</li>
-<li><p>美国总统西奥多·罗斯福就良政话题有一段箴言。他写道：“表层政府的后面有一个隐形政府，不忠于人民，也不为人民负责。摧毁隐形政府，斩断腐朽商界和腐朽政界的邪恶纽带，是政治家的首要任务。”</p>
-</li>
-<li><p>当受压迫的媒体机构迫切关注、但自己又不能报导的某个重大事件被证实，被首先披露在国际媒体上时，这些受压迫的媒体就会得到解放。其它渠道都封死后，维基解密就是最后的披露者，同时也是一个外力不可阻挡的平台。</p>
-</li>
-<li><p>…需要找到一个开放性（而不是保密）的避风港才行。这样的一个地方也应该是新闻的避风港，由法律规定保护消息来源。新闻自由将是法律的基本精神，网络自由将是现代精神的一部分，免予起诉将是一项标准。我对这个避风港的展望渐渐成形：一个政治独立的地区，一个人们可以不再逃亡的地方，一个将举报人视为英雄而不是公敌的地方，一个法律咨询随时免费提供、全民上网的地方。(阿桑奇觉得冰岛可能合适。)</p>
-</li>
-<li><p>…(冰岛RUV电视台最后一刻接到法律禁制令，不能播放银行业丑闻…于是播放员：)他说，我们现在无法为您献上报导，但有一个组织可以。随后节目就在屏幕上大大打出了维基解密的标识，整整放了几分钟，填补原先留给被禁报导的时间。</p>
-</li>
-</ul>
-<h3 id="三言两语"><a href="#三言两语" class="headerlink" title="三言两语"></a>三言两语</h3><ul>
-<li><p>“一砖头扔下去”，估计砸到的都是像我这样不明白国家、政府、政党的意义和关系的人；不明白自由是什么。我们也不被鼓励讨论这些。我们整天讨论的是房子，也甘愿被房子束缚，也被那些有房子的人指责“整天就只会讨论房子”。我们不明白自己拥有什么，将拥有什么，不知道社会契约论、政府论；对世界历史一无所知。在时代的大潮中，我们卑微地蜷缩成了草履虫。</p>
-<p>万物皆比特。信息的大潮温柔又狂暴无匹，凡是阻截它的，都被它冲刷干净。</p>
-</li>
-</ul>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://luoxc.com/2017/04/04/assange/" data-id="cjbtou6u700018p5duempr8k4" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-poor_charlies" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="2017/04/04/poor_charlies/" class="article-date">
-  <time datetime="2017-04-04T15:19:08.000Z" itemprop="datePublished">2017-04-04</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="categories/人文的意义/">人文的意义</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="2017/04/04/poor_charlies/">穷查理宝典</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="《穷查理宝典》"><a href="#《穷查理宝典》" class="headerlink" title="《穷查理宝典》"></a>《穷查理宝典》</h2><hr>
-<p>早先囫囵吞枣读完了一遍《穷查理宝典》，略作笔记，后续细读。读这些书倒不是想挖掘一两条投资宝典（也没钱投资），而是一种纯粹的好奇。下面记录了该书反复提到的一些知识。</p>
-<h3 id="心理学"><a href="#心理学" class="headerlink" title="心理学"></a>心理学</h3><p>查理非常看重心理学，看重人的心理和行为对于商业的影响。查理不喜欢宏观的泛泛而谈，更倾向细致入围观经济学。</p>
-<ul>
-<li>批评传统的心理学，过于呆板，脱离实际。比如“嫉妒”这一最常见的心理学活动都没有纳入教材</li>
-<li>收集和整理了20多个心理错误倾向，包括<ul>
-<li><strong>被剥夺超级反应倾向</strong>：即将到嘴的肉飞了</li>
-<li><strong>奖励和惩罚超级反应倾向</strong>：有效的激励，避免被钻漏洞</li>
-<li><strong>避免疑虑倾向</strong>：尽快做出决定来消除疑虑的倾向，容易武断行事。</li>
-<li><strong>避免不一致倾向</strong>：大脑的快速反应和守旧。</li>
-<li><strong>康德式公平倾向</strong>：对公平的期待。</li>
-<li><strong>艳羡和妒忌倾向</strong>：人之常情，合理控制，驱动进步。</li>
-<li><strong>受简单联想影响倾向</strong>：如价格和商品质量。品牌效应等。</li>
-<li><strong>简单的、避免痛苦的心理否认</strong>：自我保护，但可能导致堕落。</li>
-<li><strong>自视过高倾向</strong>：高估自己的能力和价值，无来由的固执，对团队危害极大。</li>
-<li><strong>社会认同倾向</strong>：从众和趋同心理，当人困惑和压力重重时最容易发生。</li>
-<li><strong>对比错误反应倾向</strong>：购物时虚报高价，抬高心理预期再缓慢砍价；租房时先给看很差的房子，再看普通房子。</li>
-<li><strong>LOLLAPPALOOZA效应</strong>：多种因素共同作用产生的更激进的效应。</li>
-</ul>
-</li>
-</ul>
-<h3 id="跨学科"><a href="#跨学科" class="headerlink" title="跨学科"></a>跨学科</h3><p>查理认为世界是复杂的，需要学习多学科（在他眼里，如有可能，应该是所有学科）的基本思想和思维模型，比如数学、物理学、心理学等。综合的看待问题，从而避免“铁锤人问题”：在手握铁锤的人眼中，所见的都是钉子。</p>
-<ul>
-<li>掌握多学科的主要模型。不需要成为每一个领域的专家，但了解每一个模型的出处和核心思想，构建多元思维模型。</li>
-<li>保持自主和常识。在多元思维下，保证自己的理性判断。</li>
-<li>终生学习。保持谦卑，终生学习，不断增加自己的模型清单。</li>
-</ul>
-<h3 id="习惯"><a href="#习惯" class="headerlink" title="习惯"></a>习惯</h3><ul>
-<li>专注。专注做好一件事，不要反复无常。一次性把事情做对。</li>
-<li>集中投资。不要反复进行交易，徒然损失交易费；花绝大部分精力在评估企业资产的优劣上，寻找被低估的或者有极大发展潜力的股票。</li>
-<li>列出自己的投资原则检查清单。做重大决策时照此检查。</li>
-<li>“祖母的规矩”：你们必须先吃完胡萝卜，然后才能吃甜点</li>
-</ul>
-<h3 id="提及的著名人物"><a href="#提及的著名人物" class="headerlink" title="提及的著名人物"></a>提及的著名人物</h3><ul>
-<li>西塞罗：罗马的元老院领袖，诗人、哲学家。公共服务是罗马公民的最高义务。</li>
-<li>杰克·韦尔奇：通用电气CEO，《赢》</li>
-<li>本杰明·格拉汉姆：《证券分析》，《聪明的投资者》</li>
-<li>山姆·沃尔顿：沃尔玛CEO</li>
-<li>沃伦·巴菲特：伯克希尔·哈撒韦CEO</li>
-<li>亚当·斯密：《国富论》</li>
-<li>史蒂芬·平克：《语言本能》</li>
-<li>斯坦利·米尔格拉姆：道德信念与权威实验</li>
-<li>菲利普·费舍尔：《怎样选择成长股》</li>
-<li>罗杰·费舍尔：《谈判力》</li>
-<li>《杰出投资者文摘》《自私的基因》《枪炮、病菌与钢铁》《深奥的简洁》</li>
-</ul>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://luoxc.com/2017/04/04/poor_charlies/" data-id="cjbtou6vh000e8p5dbbzs1ft4" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-talking-Ax" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="2017/02/19/talking-Ax/" class="article-date">
-  <time datetime="2017-02-18T16:29:02.000Z" itemprop="datePublished">2017-02-19</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="categories/机器的理智/">机器的理智</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="2017/02/19/talking-Ax/">当我们谈论Ax时在谈论什么</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h3 id="一、从解方程的角度"><a href="#一、从解方程的角度" class="headerlink" title="一、从解方程的角度"></a>一、从解方程的角度</h3><p>我们经常需要求解$Ax=b$,(这里$A是m*n维矩阵，x是n维列向量$)。我们可以对$A$（或者增广矩阵$[A, b]$）进行行变换得到阶梯型（归一化阶梯型），其中最关键的概念是pivot column, pivot position, free variable  </p>
-<ol>
-<li><p>当b = 0时，$A$满足什么条件， 解空间是非平凡的？    </p>
-<ul>
-<li>当$A$的free variable数量不为0，即$A$的pivot column数量少于n； free variable的数量是解空间的维度。 </li>
-</ul>
-</li>
-<li><p>当$b \ne 0$ 时， $A$满足什么条件，存在解？解是否唯一？对任意的b,是否都存在解？  </p>
-<ul>
-<li>解的存在性：当且仅当增广矩阵的阶梯型，最后的非零行不是[0, b*]的形式。 </li>
-<li>解的唯一性：在存在的前提下，若pivot的数量正好是n，那么就有唯一解;否则解不唯一</li>
-<li>若要对任意的b都存在解：$A$的每一行都存在一个pivot; 另一方面，说明$Ax$能够张成空间$R^m$, $rank(A) = m$。</li>
-</ul>
-</li>
-<li>对于非齐次方程，可以表达成特解与齐次解的和。</li>
-<li>利用LU分解，方便解方程 $$Ax = b \Rightarrow Lz = b, Ux = z$$ </li>
-</ol>
-<h3 id="二、从线性映射的角度"><a href="#二、从线性映射的角度" class="headerlink" title="二、从线性映射的角度"></a>二、从线性映射的角度</h3><ol>
-<li>$Ax$ 表示从$R^n \rightarrow R^m$的线性映射 $T(x): x \rightarrow Ax$, 其中 $A = [T(e_1), T(e_2)… T(e_n)]$ </li>
-<li>A的分类  <ul>
-<li>满射(mapping onto): 对于$\forall b \in R^m, Ax = b$都有解，即$col A = R^m$；也即$rank A = m(m &lt;= n)$，每一行都有一个pivot position.   </li>
-<li>单射(one to one): $x \ne y \Rightarrow Ax \ne Ay $，等价于$Ax = 0$只有平凡解，即没有free variable,  $rank A = n( n &lt;= m)$, 每一列都是Pivot column.<br>从基的角度来看，$ A$的各列是$col A$的一组基, 而不同的坐标$x$，自然对应不同的值。  </li>
-<li>双射(bijection)： A 既是单射又是满射，则A一定是方阵，且$rank(A) = n$。  </li>
-</ul>
-</li>
-<li>若$T: V - &gt;W$ , 对应的变换矩阵$A$是双射，那么，$V和W同构$，从线性代数的角度来看，二者没有区别。另，若选定一组基，任何向量都可以映射（双射）到$R^n$， 因此n维向量空间都是同构的，我们可以用$R^n$来研究任何向量空间。$\forall b, Ax = b$存在唯一的解。</li>
-<li>当$A$是方阵时，下面的结论是等价的：  <ul>
-<li>$A$ 可逆</li>
-<li>$detA \ne 0 $ </li>
-<li>$rank (A) = n, Null (A) = 0$</li>
-<li>$\forall b, Ax = b $有唯一的解, 即 $col A = R^n$</li>
-<li>$A$恰好有n个pivot column.</li>
-<li>$A$ 是双射</li>
-<li>$A$ 可以写成一系列初等矩阵的乘积，也就是行等价于单位矩阵E。</li>
-</ul>
-</li>
-</ol>
-<h3 id="三、从最小二乘角度"><a href="#三、从最小二乘角度" class="headerlink" title="三、从最小二乘角度"></a>三、从最小二乘角度</h3><ol>
-<li>$Ax$不是满射, ($\exists b, Ax = b 无解$)， 相应的问题转换成最小二乘问题。</li>
-<li>最小二乘问题：即 $argmin_{x}||b-Ax||$<ul>
-<li>从线性空间角度来看，等价于求$b$在空间$Ax$的投影$b_0$, 最小取值为 $||b-b_0||$时的$x$</li>
-<li>从统计的角度来看，若噪音满足高斯分布，那么最小二乘问题等价于极大似然。</li>
-<li>当A为单射(rank A = n, 即A的各列线性无关)，最小二乘问题有唯一解，且x为$(A^TA)^{-1}A^Tb$ $(normal \hspace{0.2cm} equation)$</li>
-<li>当A不是单射时，normal equation中的$(A^TA)^{-1}$不存在（因为$rank A^TA = rank A &lt; n$, 不可逆）； A对噪声变得敏感，噪声可能导致数值解法产生的结果相差较大；用机器学习的术语，variance过大。从另一个角度来讲，$L_2$正则化等价于$(A^TA + \lambda I)^{-1}A^Tb$</li>
-</ul>
-</li>
-</ol>
-<h3 id="四、从线性动力系统角度：-x-k-1-Ax-k"><a href="#四、从线性动力系统角度：-x-k-1-Ax-k" class="headerlink" title="四、从线性动力系统角度：$x_{k+1} = Ax_k$"></a>四、从线性动力系统角度：$x_{k+1} = Ax_k$</h3><ol>
-<li><p>对角化</p>
-<ul>
-<li>$A$对角化的充要条件：存在n个线性无关的特征向量构成P的列，则 $A = PDP^{-1}$，其中D为对角矩阵，元素为A的特征值。</li>
-<li>对于$T: x \rightarrow Ax$, 若以P的列向量为基，那么在T在P下的变换矩阵为D。即：$$ T_p: x_p \rightarrow Dx_p $$，线性变换将更直观方便，尤其涉及迭代时,可惜，<strong>并非所有矩阵A都可以对角化</strong></li>
-<li>若<strong>A是实对称矩阵</strong>，那么A可以对角化，且P是正交矩阵；A的所有特征值都是实数。</li>
-<li>对于<strong>所有矩阵A（并不限定是方阵）都存在SVD分解</strong>；<br> $$ A = U \Sigma V $$<br>  其中 $U，V$都是正交矩阵，$\Sigma$是对角矩阵，对角线的值为奇异值（$A^TA$的特征值的平方根），通过截取部分绝对值较大的奇异值，以较小的能量损失为代价，减小矩阵规模。</li>
-</ul>
-</li>
-<li><p>线性动力系统</p>
-<ul>
-<li>典型例子是马尔科夫链</li>
-<li>基于特征空间的分解：若A有n个线性无关的特征向量构成基$[v_1, v_2…v_n]$,相应的特征值$[\lambda_1, \lambda_2…\lambda_n]$(假设绝对值降序排列), 将初始值写作:$$ x_0 = c_1v_1 + c_2v_2 + … + c_nv_n $$<br>那么 $$ x_k = A^kx_0 = c_1\lambda_1^kv_1 + c_2\lambda_2^kv_2 + … + c_n\lambda_1^kv_n $$<br>$x_k$收敛，当前仅当 $|\lambda_i| \le 1$; </li>
-<li>马尔科夫链的状态矩阵A一定有特征值1，若A是regular的，那么 $x_k$收敛到稳态</li>
-<li>事实上，这里的理论非常丰富有趣，一个有趣的例子是一阶线性微分方程组；之前学习通信理论，比如求解电路状态时的种种不适，在这里得到解答。参看Linear Algebra and Its Application, chapter 5.7</li>
-</ul>
-</li>
-</ol>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://luoxc.com/2017/02/19/talking-Ax/" data-id="cjbtou6vs000h8p5dllkbbugv" class="article-share-link">Share</a>
+      <a data-url="http://luoxc.com/2017/04/04/ml-ch2-mitchell/" data-id="cjbtpjmgq000c5w5dlhmx1dok" class="article-share-link">Share</a>
       
       
     </footer>
@@ -1170,23 +1118,23 @@
       <ul>
         
           <li>
+            <a href="2017/12/31/optimization/">最优化方法</a>
+          </li>
+        
+          <li>
+            <a href="2017/12/31/unbias-estimator/">无偏估计</a>
+          </li>
+        
+          <li>
+            <a href="2017/12/31/norm-dist/">正态分布</a>
+          </li>
+        
+          <li>
             <a href="2017/12/31/tf-tutorial/">Tensorflow简明导论</a>
           </li>
         
           <li>
             <a href="2017/12/30/information-history/">《信息简史》--信息的本质</a>
-          </li>
-        
-          <li>
-            <a href="2017/12/30/influence/">《影响力》摘要</a>
-          </li>
-        
-          <li>
-            <a href="2017/09/17/funny-equation-1-variance-decomposition/">好玩的公式系列1：方差分解的联想</a>
-          </li>
-        
-          <li>
-            <a href="2017/09/17/godel-proof/">哥德尔不完全性</a>
           </li>
         
       </ul>

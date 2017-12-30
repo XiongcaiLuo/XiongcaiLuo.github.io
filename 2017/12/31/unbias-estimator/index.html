@@ -3,18 +3,30 @@
 <head>
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
   
-  <title>Hello Xigua | 西瓜的木屋</title>
+  <title>无偏估计 | 西瓜的木屋</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="你好，西瓜先生桃李春风一杯酒，江湖夜雨十年灯为有牺牲多壮志，敢叫日月换新天">
+  <meta name="description" content="Bessel’s correction
+
+计算协方差的时候并不是除以N, 那是因为每一列的和为0，因此自由度为N-1
+解释bias来源：https://en.wikipedia.org/wiki/Bessel%27s_correction#Source_of_bias
+本质上就是样本均值(sample mean)与总体均值(population mean)不同。此时，样本方差总是比真实方差小">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Hello Xigua">
-<meta property="og:url" content="http://luoxc.com/2017/02/18/Hello-Xigua/index.html">
+<meta property="og:title" content="无偏估计">
+<meta property="og:url" content="http://luoxc.com/2017/12/31/unbias-estimator/index.html">
 <meta property="og:site_name" content="西瓜的木屋">
-<meta property="og:description" content="你好，西瓜先生桃李春风一杯酒，江湖夜雨十年灯为有牺牲多壮志，敢叫日月换新天">
-<meta property="og:updated_time" content="2017-02-18T14:04:25.000Z">
+<meta property="og:description" content="Bessel’s correction
+
+计算协方差的时候并不是除以N, 那是因为每一列的和为0，因此自由度为N-1
+解释bias来源：https://en.wikipedia.org/wiki/Bessel%27s_correction#Source_of_bias
+本质上就是样本均值(sample mean)与总体均值(population mean)不同。此时，样本方差总是比真实方差小">
+<meta property="og:updated_time" content="2017-12-30T18:47:59.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Hello Xigua">
-<meta name="twitter:description" content="你好，西瓜先生桃李春风一杯酒，江湖夜雨十年灯为有牺牲多壮志，敢叫日月换新天">
+<meta name="twitter:title" content="无偏估计">
+<meta name="twitter:description" content="Bessel’s correction
+
+计算协方差的时候并不是除以N, 那是因为每一列的和为0，因此自由度为N-1
+解释bias来源：https://en.wikipedia.org/wiki/Bessel%27s_correction#Source_of_bias
+本质上就是样本均值(sample mean)与总体均值(population mean)不同。此时，样本方差总是比真实方差小">
   
     <link rel="alternate" href="/atom.xml" title="西瓜的木屋" type="application/atom+xml">
   
@@ -67,12 +79,16 @@
   </div>
 </header>
       <div class="outer">
-        <section id="main"><article id="post-Hello-Xigua" class="article article-type-post" itemscope itemprop="blogPost">
+        <section id="main"><article id="post-unbias-estimator" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="" class="article-date">
-  <time datetime="2017-02-18T13:23:24.000Z" itemprop="datePublished">2017-02-18</time>
+  <time datetime="2017-12-30T18:43:18.000Z" itemprop="datePublished">2017-12-31</time>
 </a>
     
+  <div class="article-category">
+    <a class="article-category-link" href="../../../../categories/机器的理智/">机器的理智</a>
+  </div>
+
   </div>
   <div class="article-inner">
     
@@ -81,7 +97,7 @@
         
   
     <h1 class="article-title" itemprop="name">
-      Hello Xigua
+      无偏估计
     </h1>
   
 
@@ -89,12 +105,40 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>你好，西瓜先生<br>桃李春风一杯酒，江湖夜雨十年灯<br>为有牺牲多壮志，敢叫日月换新天</p>
+        <p><strong>Bessel’s correction</strong></p>
+<ul>
+<li>计算协方差的时候并不是除以N, 那是因为每一列的和为0，因此自由度为N-1<ul>
+<li>解释bias来源：<a href="https://en.wikipedia.org/wiki/Bessel%27s_correction#Source_of_bias" target="_blank" rel="external">https://en.wikipedia.org/wiki/Bessel%27s_correction#Source_of_bias</a><ul>
+<li>本质上就是样本均值(sample mean)与总体均值(population mean)不同。此时，样本方差总是比真实方差小</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>修正后，方差是无偏的，但标准差是有偏的。因为sqrt是上凸函数<ul>
+<li>标准差无偏估计：<a href="https://en.wikipedia.org/wiki/Unbiased_estimation_of_standard_deviation" target="_blank" rel="external">https://en.wikipedia.org/wiki/Unbiased_estimation_of_standard_deviation</a></li>
+<li>自由度：能独立变化的变量个数</li>
+</ul>
+</li>
+<li>当真实均值给定(而不是从样本中计算)时候，除以N</li>
+</ul>
+<p><strong>sample var, population var</strong></p>
+<ul>
+<li><p>$\mu$: population mean（总体均值）</p>
+</li>
+<li><p>$\delta^2$: population variance</p>
+</li>
+<li><p>$\bar{x}$: sample mean(样本均值)</p>
+</li>
+<li><p>$s_n^2$: sample variance（n个样本方差）</p>
+<p>可以将$\bar{x}, s_n^2$看做随机变量，它们是对$\mu, \delta^2$的估计。</p>
+<p>对于$\bar{x}$有：$$ E[\bar{x}] = \mu, 无偏估计$$<br>$$ E[(\bar{x} - \mu)^2] = \frac{\delta^2}{n}$$<br>对于$s_n^2$有：<br>$$ E[s<em>n^2] = E[\frac{1}{n} \sum</em>{i=1}^n(x<em>i - \bar{x})^2]  = E[\frac{1}{n} \sum</em>{i=1}^n(x<em>i - \mu + \mu - \bar{x})^2] \ = E[\frac{1}{n} \sum</em>{i=1}^n(x_i - \mu)^2 + (\mu - \bar{x})^2 + 2(x<em>i-\mu)(\mu - \bar{x})] \ = \frac{1}{n} \sum</em>{i=1}^nE[(x_i-\mu)^2] + E[(\mu - \bar{x})^2 + 2(\bar{x}-\mu)(\mu - \bar{x})] \ = \delta^2 - E[(\mu- \bar{x})^2] = \delta^2 - \frac{\delta^2}{n}  = \frac{n-1}{n}\delta^2$$</p>
+</li>
+</ul>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://luoxc.com/2017/02/18/Hello-Xigua/" data-id="cjbtpjmf700005w5dpde12enq" class="article-share-link">Share</a>
+      <a data-url="http://luoxc.com/2017/12/31/unbias-estimator/" data-id="cjbtpjmhb000q5w5dyrqughon" class="article-share-link">Share</a>
       
       
     </footer>
@@ -103,15 +147,20 @@
     
 <nav id="article-nav">
   
-    <a href="../hexo-博客搭建指南/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="../optimization/" id="article-nav-newer" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          hexo 博客搭建指南
+          最优化方法
         
       </div>
     </a>
   
+  
+    <a href="../norm-dist/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">正态分布</div>
+    </a>
   
 </nav>
 
@@ -154,23 +203,23 @@
       <ul>
         
           <li>
-            <a href="../../../12/31/optimization/">最优化方法</a>
+            <a href="../optimization/">最优化方法</a>
           </li>
         
           <li>
-            <a href="../../../12/31/unbias-estimator/">无偏估计</a>
+            <a href="">无偏估计</a>
           </li>
         
           <li>
-            <a href="../../../12/31/norm-dist/">正态分布</a>
+            <a href="../norm-dist/">正态分布</a>
           </li>
         
           <li>
-            <a href="../../../12/31/tf-tutorial/">Tensorflow简明导论</a>
+            <a href="../tf-tutorial/">Tensorflow简明导论</a>
           </li>
         
           <li>
-            <a href="../../../12/30/information-history/">《信息简史》--信息的本质</a>
+            <a href="../../30/information-history/">《信息简史》--信息的本质</a>
           </li>
         
       </ul>
@@ -209,6 +258,23 @@
 
 <script src="../../../../js/script.js"></script>
 
-  </div><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+  </div><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config("");
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
 </body>
 </html>
