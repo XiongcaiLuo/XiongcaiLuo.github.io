@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
-  <title>Mr Xigua</title>
+  <title>西瓜的木屋</title>
   
-  <subtitle>你好，西瓜</subtitle>
+  <subtitle>记录关于机器学习、智能逻辑、人文社科方面的读书心得</subtitle>
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://luoxc.com/"/>
