@@ -52,9 +52,9 @@
       </nav>
       <nav id="sub-nav">
         
-          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="Flux RSS"></a>
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
         
-        <a id="nav-search-btn" class="nav-icon" title="Rechercher"></a>
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
       </nav>
       <div id="search-form-wrap">
         <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://luoxc.com"></form>
@@ -71,6 +71,10 @@
   <time datetime="2017-09-17T05:51:46.000Z" itemprop="datePublished">2017-09-17</time>
 </a>
     
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/machine-learning/">machine learning</a>
+  </div>
+
   </div>
   <div class="article-inner">
     
@@ -91,21 +95,25 @@
 <ul>
 <li>在机器学习中，X看做特征，Y为目标；在统计里，X看做自变量，Y看做因变量</li>
 <li>它表达了理想情况下，采用<strong>MSE准则</strong>，预测函数$Y=g(X)=E_Y[Y|X]$时的方差组成：<ul>
-<li>可以解读为: $target_var =  captured_var + MSE$</li>
+<li>可以解读为: $target_var =  captured_var + MSE$<ul>
 <li>$ Var(E_Y[Y|X])$: $captured_var$, 表征预测模型捕获的方差。</li>
 <li>$ E_X[Var(Y|X)] $：表征预测残差，此时的MSE只有噪声，没有模型偏差。</li>
 <li>$R^2 = \frac{Var(E_Y[Y|X])}{Var(Y)} $: 统计学里称之为<strong>“决定系数”</strong>。$R^2$越接近1，则表明$Y$的方差几乎都被$g(X)$捕获，预测残差小，预测的效果好；也说明数据质量好，噪音小！在这种理想情况下($g(X) = E_Y[Y|X]$)，可以用$R^2$评估数据质量。</li>
 </ul>
 </li>
+</ul>
+</li>
 <li><p>事实上，往往预测函数$Y=g(X)\  \neq E_Y[Y|X]$：</p>
 <ul>
-<li>预测函数不能有效捕获Y的方差，MSE增大：$captured_var &lt; Var(E_Y[Y|X])$，$MSE &gt; E_X[Var(Y|X)]$,</li>
+<li>预测函数不能有效捕获Y的方差，MSE增大：$captured_var &lt; Var(E_Y[Y|X])$，$MSE &gt; E_X[Var(Y|X)]$,<ul>
 <li>MSE的误差来源包含两部分：固有噪声$E_X[Var(Y|X)]$（机器学习中称为<strong>方差variance</strong>）和模型误差（机器学习中称为<strong>偏差bias</strong>），具体见下文证明。</li>
 <li>若$g(X)$太差，将导致模型偏差部分非常大！机器学习中称之为“<strong>欠拟合</strong>”，下面是可能的原因：<ul>
 <li>数据量过小，不能有效的估计出$E[Y|X]$</li>
 <li>特征太差，没有表征力（极端情况下X和Y独立，见下文分析）</li>
-<li>假设空间容量不够大，没有$E_X[Y|X]$及其有效近似。（如采用线性拟合非线性数据）</li>
-<li>假设空间足够大，但是没有有效的搜索策略。（如nerual network高度非凸的搜索空间）    </li>
+<li>假设空间容量不够大，没有$E_X[Y|X]$及其有效近似。（如采用线性拟合非线性数据）<ul>
+<li>假设空间足够大，但是没有有效的搜索策略。（如nerual network高度非凸的搜索空间）</li>
+</ul>
+</li>
 </ul>
 </li>
 <li>要防止在训练集上过度拟合$g(X)$：<ul>
@@ -120,25 +128,33 @@
 </li>
 </ul>
 </li>
+</ul>
+</li>
 <li><p>当$X$与$Y$独立时（即特征X太烂，无法表征目标Y）: </p>
 <ul>
-<li>公式右边退化为$Var(Y) + 0$</li>
+<li>公式右边退化为$Var(Y) + 0$<ul>
 <li>预测函数将完全无法捕获$Y$的方差</li>
 <li>MSE中的偏差部分将增大！（特征工程很重要）</li>
 </ul>
 </li>
+</ul>
+</li>
 <li><p>如何更好的使$g(X)$逼近$E[Y|X]$呢？</p>
 <ul>
-<li>对于条件期望$E[Y|X]$, 若对于每一个可能的$X$, 都有足够多样本来估计Y的条件期望；之后的预测，就只需查表。显然，不符合现实。</li>
+<li>对于条件期望$E[Y|X]$, 若对于每一个可能的$X$, 都有足够多样本来估计Y的条件期望；之后的预测，就只需查表。显然，不符合现实。<ul>
 <li>对每个点$X$我们无法得到足够样本，但是可以将X的空间分段，进行分段拟合；</li>
 <li>分段拟合为防止过拟合，可以限定假设空间为3次自然样条。</li>
 <li>KNN采用$g(x) = Avg(y_i\ |\ x_i \in N_k(x))$来近似$E[Y|X=x]$</li>
 </ul>
 </li>
+</ul>
+</li>
 <li><p>在抽样理论中：可尝试使用随机变量$E_Y[Y|X]$ 代替$Y$来模拟$E[Y]$,减小抽样方差， 因为：</p>
 <ul>
-<li>$E_X[E_Y[Y|X]] = E[Y]$</li>
+<li>$E_X[E_Y[Y|X]] = E[Y]$<ul>
 <li>$Var(E_Y[Y|X]) \le Var(Y)$</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -151,9 +167,11 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://luoxc.com/2017/09/17/funny-equation-1-variance-decomposition/" data-id="cj7obskwl0000ry5dl315rmjn" class="article-share-link">Partager</a>
+      <a data-url="http://luoxc.com/2017/09/17/funny-equation-1-variance-decomposition/" data-id="cjbglg03t0002995dfhz9lnvv" class="article-share-link">Share</a>
       
       
+  <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/machine-learning/">machine learning</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/probability/">probability</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/variance/">variance</a></li></ul>
+
     </footer>
   </div>
   
@@ -329,7 +347,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://luoxc.com/2017/09/17/godel-proof/" data-id="cj7obskx30003ry5d8ry4iid0" class="article-share-link">Partager</a>
+      <a data-url="http://luoxc.com/2017/09/17/godel-proof/" data-id="cjbglg03z0005995ddylawheb" class="article-share-link">Share</a>
       
       
     </footer>
@@ -415,7 +433,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://luoxc.com/2017/04/05/ml-ch6-mitchell/" data-id="cj7obskxc0006ry5d3gq3bzv1" class="article-share-link">Partager</a>
+      <a data-url="http://luoxc.com/2017/04/05/ml-ch6-mitchell/" data-id="cjbglg0460007995d3ft7h93x" class="article-share-link">Share</a>
       
       
     </footer>
@@ -465,7 +483,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://luoxc.com/2017/04/04/ml-ch2-mitchell/" data-id="cj7obskx80005ry5drpdln4yg" class="article-share-link">Partager</a>
+      <a data-url="http://luoxc.com/2017/04/04/ml-ch2-mitchell/" data-id="cjbglg0440006995djeqex585" class="article-share-link">Share</a>
       
       
     </footer>
@@ -524,7 +542,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://luoxc.com/2017/04/04/assange/" data-id="cj7obskx00002ry5dci63y7r9" class="article-share-link">Partager</a>
+      <a data-url="http://luoxc.com/2017/04/04/assange/" data-id="cjbglg03q0001995dcyhfqslh" class="article-share-link">Share</a>
       
       
     </footer>
@@ -606,7 +624,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://luoxc.com/2017/04/04/poor_charlies/" data-id="cj7obskxm0008ry5dzviipjkg" class="article-share-link">Partager</a>
+      <a data-url="http://luoxc.com/2017/04/04/poor_charlies/" data-id="cjbglg04b0008995dv9o1a6ne" class="article-share-link">Share</a>
       
       
     </footer>
@@ -707,7 +725,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://luoxc.com/2017/02/19/talking-Ax/" data-id="cj7obskxf0007ry5d0bmfl1u0" class="article-share-link">Partager</a>
+      <a data-url="http://luoxc.com/2017/02/19/talking-Ax/" data-id="cjbglg04d0009995dw04gc0xe" class="article-share-link">Share</a>
       
       
     </footer>
@@ -784,7 +802,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://luoxc.com/2017/02/18/hexo-博客搭建指南/" data-id="cj7obskx60004ry5ddhlcm3ri" class="article-share-link">Partager</a>
+      <a data-url="http://luoxc.com/2017/02/18/hexo-博客搭建指南/" data-id="cjbglg03x0004995drbwxdr78" class="article-share-link">Share</a>
       
       
     </footer>
@@ -821,7 +839,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://luoxc.com/2017/02/18/Hello-Xigua/" data-id="cj7obskwv0001ry5dak5lrjw8" class="article-share-link">Partager</a>
+      <a data-url="http://luoxc.com/2017/02/18/Hello-Xigua/" data-id="cjbglg03k0000995dx3fe4ey7" class="article-share-link">Share</a>
       
       
     </footer>
@@ -837,12 +855,33 @@
           <aside id="sidebar">
   
     
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/machine-learning/">machine learning</a></li></ul>
+    </div>
+  </div>
+
 
   
     
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tags</h3>
+    <div class="widget">
+      <ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/machine-learning/">machine learning</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/probability/">probability</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/variance/">variance</a></li></ul>
+    </div>
+  </div>
+
 
   
     
+  <div class="widget-wrap">
+    <h3 class="widget-title">Tag Cloud</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/machine-learning/" style="font-size: 10px;">machine learning</a> <a href="/tags/probability/" style="font-size: 10px;">probability</a> <a href="/tags/variance/" style="font-size: 10px;">variance</a>
+    </div>
+  </div>
+
   
     
   <div class="widget-wrap">
@@ -856,7 +895,7 @@
   
     
   <div class="widget-wrap">
-    <h3 class="widget-title">Articles récents</h3>
+    <h3 class="widget-title">Recent Posts</h3>
     <div class="widget">
       <ul>
         
@@ -893,7 +932,7 @@
   <div class="outer">
     <div id="footer-info" class="inner">
       &copy; 2017 Finch Luo<br>
-      Propulsé by <a href="http://hexo.io/" target="_blank">Hexo</a>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>
 </footer>
