@@ -2,6 +2,20 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://luoxc.com/2018/01/06/gan-basic/</loc>
+    
+    <lastmod>2018-01-06T15:19:07.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://luoxc.com/2017/12/31/auto-encoder/</loc>
+    
+    <lastmod>2017-12-31T05:35:07.000Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://luoxc.com/2017/12/31/optimization/</loc>
     
     <lastmod>2017-12-30T18:55:19.000Z</lastmod>

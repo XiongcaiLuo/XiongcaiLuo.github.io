@@ -3,39 +3,15 @@
 <head>
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
   
-  <title>正态分布 | 西瓜的木屋</title>
+  <title>auto_encoder | 西瓜的木屋</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="单变量正态分布定义： $p(x) = \frac{1}{\sqrt{2\pi}\delta}e^{-\frac{1}{2}(\frac{x-\mu}{\delta})^2}$
-
-$E(x) = \mu$, $D(x) = \delta^2$
-$y = ax+b$ 是正态分布，其中a,b是常数
-$E(y) = a\mu+b,  D(y) = a^2\delta^2$
-
-
-$y = \sum_{i=1">
-<meta property="og:type" content="article">
-<meta property="og:title" content="正态分布">
-<meta property="og:url" content="http://luoxc.com/2017/12/31/norm-dist/index.html">
+  <meta property="og:type" content="article">
+<meta property="og:title" content="auto_encoder">
+<meta property="og:url" content="http://luoxc.com/2017/12/31/auto-encoder/index.html">
 <meta property="og:site_name" content="西瓜的木屋">
-<meta property="og:description" content="单变量正态分布定义： $p(x) = \frac{1}{\sqrt{2\pi}\delta}e^{-\frac{1}{2}(\frac{x-\mu}{\delta})^2}$
-
-$E(x) = \mu$, $D(x) = \delta^2$
-$y = ax+b$ 是正态分布，其中a,b是常数
-$E(y) = a\mu+b,  D(y) = a^2\delta^2$
-
-
-$y = \sum_{i=1">
-<meta property="og:updated_time" content="2017-12-30T18:48:08.000Z">
+<meta property="og:updated_time" content="2017-12-31T05:35:07.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="正态分布">
-<meta name="twitter:description" content="单变量正态分布定义： $p(x) = \frac{1}{\sqrt{2\pi}\delta}e^{-\frac{1}{2}(\frac{x-\mu}{\delta})^2}$
-
-$E(x) = \mu$, $D(x) = \delta^2$
-$y = ax+b$ 是正态分布，其中a,b是常数
-$E(y) = a\mu+b,  D(y) = a^2\delta^2$
-
-
-$y = \sum_{i=1">
+<meta name="twitter:title" content="auto_encoder">
   
     <link rel="alternate" href="/atom.xml" title="西瓜的木屋" type="application/atom+xml">
   
@@ -88,10 +64,10 @@ $y = \sum_{i=1">
   </div>
 </header>
       <div class="outer">
-        <section id="main"><article id="post-norm-dist" class="article article-type-post" itemscope itemprop="blogPost">
+        <section id="main"><article id="post-auto-encoder" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="" class="article-date">
-  <time datetime="2017-12-30T18:40:59.000Z" itemprop="datePublished">2017-12-31</time>
+  <time datetime="2017-12-31T02:48:00.000Z" itemprop="datePublished">2017-12-31</time>
 </a>
     
   <div class="article-category">
@@ -106,7 +82,7 @@ $y = \sum_{i=1">
         
   
     <h1 class="article-title" itemprop="name">
-      正态分布
+      auto_encoder
     </h1>
   
 
@@ -114,28 +90,11 @@ $y = \sum_{i=1">
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h3 id="单变量正态分布"><a href="#单变量正态分布" class="headerlink" title="单变量正态分布"></a>单变量正态分布</h3><p><strong>定义：</strong> $p(x) = \frac{1}{\sqrt{2\pi}\delta}e^{-\frac{1}{2}(\frac{x-\mu}{\delta})^2}$</p>
-<ul>
-<li>$E(x) = \mu$, $D(x) = \delta^2$</li>
-<li>$y = ax+b$ 是正态分布，其中a,b是常数<ul>
-<li>$E(y) = a\mu+b,  D(y) = a^2\delta^2$</li>
-</ul>
-</li>
-<li>$y = \sum_{i=1}^{n}x_i$, 且$x_i$都是正态分布时， $y$是正态分布？<ul>
-<li>$E(y) = \sum_{i=1}^{n}\mu<em>i,  D(y) =\sum</em>{i=1}^{n}\delta_i^2 $</li>
-</ul>
-</li>
-</ul>
-<h3 id="多元正态分布"><a href="#多元正态分布" class="headerlink" title="多元正态分布"></a>多元正态分布</h3><p><strong>定义：</strong>当随机向量$X=\mu + B\epsilon$满足: $u$是n维常向量，$B$是n*m维矩阵， $\epsilon = [\epsilon_1, \epsilon_2…\epsilon_m]$的分量都是相互独立的标准正态分布时，称$X$满足多元正态分布。</p>
-<ul>
-<li>即$X$的每一维都能分解成某一共同的<strong>m个相互独立的标准正态分布的线性组合</strong></li>
-<li>$E(X) = \mu, \Sigma = BB^T$</li>
-</ul>
-
+        
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://luoxc.com/2017/12/31/norm-dist/" data-id="cjc3i7up4000k3y5dnn4cpwjz" class="article-share-link">Share</a>
+      <a data-url="http://luoxc.com/2017/12/31/auto-encoder/" data-id="cjc3i7unh00033y5diyonbadi" class="article-share-link">Share</a>
       
       
     </footer>
@@ -144,19 +103,19 @@ $y = \sum_{i=1">
     
 <nav id="article-nav">
   
-    <a href="../unbias-estimator/" id="article-nav-newer" class="article-nav-link-wrap">
+    <a href="../../../../2018/01/06/gan-basic/" id="article-nav-newer" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          无偏估计
+          GAN的基本原理
         
       </div>
     </a>
   
   
-    <a href="../tf-tutorial/" id="article-nav-older" class="article-nav-link-wrap">
+    <a href="../optimization/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">Tensorflow简明导论</div>
+      <div class="article-nav-title">最优化方法</div>
     </a>
   
 </nav>
@@ -204,7 +163,7 @@ $y = \sum_{i=1">
           </li>
         
           <li>
-            <a href="../auto-encoder/">auto_encoder</a>
+            <a href="">auto_encoder</a>
           </li>
         
           <li>
@@ -216,7 +175,7 @@ $y = \sum_{i=1">
           </li>
         
           <li>
-            <a href="">正态分布</a>
+            <a href="../norm-dist/">正态分布</a>
           </li>
         
       </ul>
@@ -255,23 +214,6 @@ $y = \sum_{i=1">
 
 <script src="../../../../js/script.js"></script>
 
-  </div><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
-<script type="text/x-mathjax-config">
-  MathJax.Hub.Config("");
-</script>
-
-<script type="text/x-mathjax-config">
-  MathJax.Hub.Queue(function() {
-    var all = MathJax.Hub.getAllJax(), i;
-    for(i=0; i < all.length; i += 1) {
-      all[i].SourceElement().parentNode.className += ' has-jax';
-    }
-  });
-</script>
-
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML">
-</script>
-<!-- End: Injected MathJax -->
-<!-- hexo-inject:end -->
+  </div><!-- hexo-inject:begin --><!-- hexo-inject:end -->
 </body>
 </html>
