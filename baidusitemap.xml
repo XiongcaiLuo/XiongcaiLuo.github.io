@@ -4,8 +4,26 @@
 
     
   <url>
+    <loc>http://luoxc.com/2018/01/06/standard-varariable/</loc>
+    <lastmod>2018-01-06T15:42:43.000Z</lastmod>
+    <data>
+        <display>
+        <title>特征标准化与条件数</title>
+        <pubTime>2018-01-06T15:39:02.000Z</pubTime>
+        
+         
+           
+             
+              <breadCrumb title="机器的理智" url="http://luoxc.com/categories/%E6%9C%BA%E5%99%A8%E7%9A%84%E7%90%86%E6%99%BA/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>http://luoxc.com/2018/01/06/gan-basic/</loc>
-    <lastmod>2018-01-06T15:19:07.000Z</lastmod>
+    <lastmod>2018-01-06T15:28:33.000Z</lastmod>
     <data>
         <display>
         <title>GAN的基本原理</title>
